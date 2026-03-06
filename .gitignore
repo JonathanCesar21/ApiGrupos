@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 # Local tools and temporary build output
 build-check/
 tools/ngrok/
+
+# local publish output
+publish-win/

@@ -1,4 +1,5 @@
 ﻿using ApiGrupos.Models;
+using ApiGrupos.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -8,11 +9,11 @@ namespace ApiGrupos.Controllers;
 [Route("api/[controller]")]
 public class SubgruposController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly ConnectionStringProvider _connectionStringProvider;
 
-    public SubgruposController(IConfiguration configuration)
+    public SubgruposController(ConnectionStringProvider connectionStringProvider)
     {
-        _configuration = configuration;
+        _connectionStringProvider = connectionStringProvider;
     }
 
     [HttpGet]
@@ -20,11 +21,11 @@ public class SubgruposController : ControllerBase
     {
         try
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            var connectionString = _connectionStringProvider.GetConnectionString();
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Connection string 'DefaultConnection' não foi configurada.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    "Credenciais do banco nao configuradas. Acesse /configuracao para informar usuario e senha.");
             }
 
             var subgrupos = new List<Subgrupo>();
@@ -32,11 +33,6 @@ public class SubgruposController : ControllerBase
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
-            // Nomes reais aplicados:
-            // Tabela subgrupos: Subgrupos
-            // Código do subgrupo: codsubgrupo
-            // Nome do subgrupo: nomesubgrupo
-            // Código do grupo relacionado: CodGrupo
             const string sql = @"
                 SELECT codsubgrupo, nomesubgrupo, CodGrupo
                 FROM Subgrupos
@@ -74,11 +70,11 @@ public class SubgruposController : ControllerBase
     {
         try
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            var connectionString = _connectionStringProvider.GetConnectionString();
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Connection string 'DefaultConnection' não foi configurada.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    "Credenciais do banco nao configuradas. Acesse /configuracao para informar usuario e senha.");
             }
 
             var subgrupos = new List<Subgrupo>();
@@ -86,11 +82,6 @@ public class SubgruposController : ControllerBase
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
-            // Nomes reais aplicados:
-            // Tabela subgrupos: Subgrupos
-            // Código do subgrupo: codsubgrupo
-            // Nome do subgrupo: nomesubgrupo
-            // Código do grupo relacionado: CodGrupo
             const string sql = @"
                 SELECT codsubgrupo, nomesubgrupo, CodGrupo
                 FROM Subgrupos
@@ -126,4 +117,3 @@ public class SubgruposController : ControllerBase
         }
     }
 }
-

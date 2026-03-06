@@ -1,4 +1,5 @@
 ﻿using ApiGrupos.Models;
+using ApiGrupos.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -8,11 +9,11 @@ namespace ApiGrupos.Controllers;
 [Route("api/[controller]")]
 public class GruposController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly ConnectionStringProvider _connectionStringProvider;
 
-    public GruposController(IConfiguration configuration)
+    public GruposController(ConnectionStringProvider connectionStringProvider)
     {
-        _configuration = configuration;
+        _connectionStringProvider = connectionStringProvider;
     }
 
     [HttpGet]
@@ -20,11 +21,11 @@ public class GruposController : ControllerBase
     {
         try
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            var connectionString = _connectionStringProvider.GetConnectionString();
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Connection string 'DefaultConnection' não foi configurada.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    "Credenciais do banco nao configuradas. Acesse /configuracao para informar usuario e senha.");
             }
 
             var grupos = new List<Grupo>();
@@ -32,10 +33,6 @@ public class GruposController : ControllerBase
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
-            // Nomes reais aplicados:
-            // Tabela grupos: Grupos
-            // Código do grupo: codgrupo
-            // Nome do grupo: nomegrupo
             const string sql = @"
                 SELECT codgrupo, nomegrupo
                 FROM Grupos
@@ -67,4 +64,3 @@ public class GruposController : ControllerBase
         }
     }
 }
-
