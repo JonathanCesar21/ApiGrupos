@@ -1,4 +1,4 @@
-﻿using ApiGrupos.Models;
+using ApiGrupos.Models;
 using ApiGrupos.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -6,12 +6,12 @@ using Microsoft.Data.SqlClient;
 namespace ApiGrupos.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class GruposController : ControllerBase
+[Route("api/colecao")]
+public class ColecaoController : ControllerBase
 {
     private readonly ConnectionStringProvider _connectionStringProvider;
 
-    public GruposController(ConnectionStringProvider connectionStringProvider)
+    public ColecaoController(ConnectionStringProvider connectionStringProvider)
     {
         _connectionStringProvider = connectionStringProvider;
     }
@@ -28,7 +28,7 @@ public class GruposController : ControllerBase
                     "Credenciais do banco nao configuradas. Acesse /configuracao para informar usuario e senha.");
             }
 
-            var grupos = new List<Grupo>();
+            var colecoes = new List<Colecao>();
 
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
@@ -36,23 +36,22 @@ public class GruposController : ControllerBase
             if (!paginacao.HasPagination)
             {
                 const string sqlSemPaginacao = @"
-                    SELECT codgrupo, nomegrupo
-                    FROM Grupos
-                    ORDER BY nomegrupo";
+                    SELECT Colecao
+                    FROM Colecao
+                    ORDER BY Colecao";
 
                 await using var commandSemPaginacao = new SqlCommand(sqlSemPaginacao, connection);
                 await using var readerSemPaginacao = await commandSemPaginacao.ExecuteReaderAsync();
 
                 while (await readerSemPaginacao.ReadAsync())
                 {
-                    grupos.Add(new Grupo
+                    colecoes.Add(new Colecao
                     {
-                        Id = Convert.ToInt32(readerSemPaginacao.GetValue(0)),
-                        Nome = readerSemPaginacao.IsDBNull(1) ? string.Empty : readerSemPaginacao.GetString(1)
+                        Nome = readerSemPaginacao.IsDBNull(0) ? string.Empty : readerSemPaginacao.GetString(0)
                     });
                 }
 
-                return Ok(grupos);
+                return Ok(colecoes);
             }
 
             if (!paginacao.TryResolve(out var page, out var pageSize, out var error))
@@ -60,7 +59,7 @@ public class GruposController : ControllerBase
                 return BadRequest(error);
             }
 
-            const string sqlTotal = "SELECT COUNT(1) FROM Grupos";
+            const string sqlTotal = "SELECT COUNT(1) FROM Colecao";
             await using var commandTotal = new SqlCommand(sqlTotal, connection);
             var total = Convert.ToInt32(await commandTotal.ExecuteScalarAsync());
 
@@ -71,12 +70,11 @@ public class GruposController : ControllerBase
                 WITH Dados AS
                 (
                     SELECT
-                        codgrupo,
-                        nomegrupo,
-                        ROW_NUMBER() OVER (ORDER BY nomegrupo) AS RowNum
-                    FROM Grupos
+                        Colecao,
+                        ROW_NUMBER() OVER (ORDER BY Colecao) AS RowNum
+                    FROM Colecao
                 )
-                SELECT codgrupo, nomegrupo
+                SELECT Colecao
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum";
@@ -88,33 +86,32 @@ public class GruposController : ControllerBase
 
             while (await readerPaginado.ReadAsync())
             {
-                grupos.Add(new Grupo
+                colecoes.Add(new Colecao
                 {
-                    Id = Convert.ToInt32(readerPaginado.GetValue(0)),
-                    Nome = readerPaginado.IsDBNull(1) ? string.Empty : readerPaginado.GetString(1)
+                    Nome = readerPaginado.IsDBNull(0) ? string.Empty : readerPaginado.GetString(0)
                 });
             }
 
             var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
 
-            return Ok(new PaginacaoResposta<Grupo>
+            return Ok(new PaginacaoResposta<Colecao>
             {
                 Page = page,
                 PageSize = pageSize,
                 Total = total,
                 TotalPages = totalPages,
-                Items = grupos
+                Items = colecoes
             });
         }
         catch (SqlException ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError,
-                $"Erro ao consultar grupos no banco de dados: {ex.Message}");
+                $"Erro ao consultar colecoes no banco de dados: {ex.Message}");
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError,
-                $"Erro inesperado ao consultar grupos: {ex.Message}");
+                $"Erro inesperado ao consultar colecoes: {ex.Message}");
         }
     }
 }

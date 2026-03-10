@@ -17,7 +17,7 @@ public class SubgruposController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Subgrupo>>> Get()
+    public async Task<ActionResult> Get([FromQuery] PaginacaoQuery paginacao)
     {
         try
         {
@@ -33,25 +33,81 @@ public class SubgruposController : ControllerBase
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
-            const string sql = @"
+            if (!paginacao.HasPagination)
+            {
+                const string sqlSemPaginacao = @"
+                    SELECT codsubgrupo, nomesubgrupo, CodGrupo
+                    FROM Subgrupos
+                    ORDER BY nomesubgrupo";
+
+                await using var commandSemPaginacao = new SqlCommand(sqlSemPaginacao, connection);
+                await using var readerSemPaginacao = await commandSemPaginacao.ExecuteReaderAsync();
+
+                while (await readerSemPaginacao.ReadAsync())
+                {
+                    subgrupos.Add(new Subgrupo
+                    {
+                        Id = Convert.ToInt32(readerSemPaginacao.GetValue(0)),
+                        Nome = readerSemPaginacao.IsDBNull(1) ? string.Empty : readerSemPaginacao.GetString(1),
+                        GrupoCodigo = readerSemPaginacao.IsDBNull(2) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(2))
+                    });
+                }
+
+                return Ok(subgrupos);
+            }
+
+            if (!paginacao.TryResolve(out var page, out var pageSize, out var error))
+            {
+                return BadRequest(error);
+            }
+
+            const string sqlTotal = "SELECT COUNT(1) FROM Subgrupos";
+            await using var commandTotal = new SqlCommand(sqlTotal, connection);
+            var total = Convert.ToInt32(await commandTotal.ExecuteScalarAsync());
+
+            var rowStart = ((page - 1) * pageSize) + 1;
+            var rowEnd = rowStart + pageSize - 1;
+
+            const string sqlPaginado = @"
+                WITH Dados AS
+                (
+                    SELECT
+                        codsubgrupo,
+                        nomesubgrupo,
+                        CodGrupo,
+                        ROW_NUMBER() OVER (ORDER BY nomesubgrupo) AS RowNum
+                    FROM Subgrupos
+                )
                 SELECT codsubgrupo, nomesubgrupo, CodGrupo
-                FROM Subgrupos
-                ORDER BY nomesubgrupo";
+                FROM Dados
+                WHERE RowNum BETWEEN @RowStart AND @RowEnd
+                ORDER BY RowNum";
 
-            await using var command = new SqlCommand(sql, connection);
-            await using var reader = await command.ExecuteReaderAsync();
+            await using var commandPaginado = new SqlCommand(sqlPaginado, connection);
+            commandPaginado.Parameters.AddWithValue("@RowStart", rowStart);
+            commandPaginado.Parameters.AddWithValue("@RowEnd", rowEnd);
+            await using var readerPaginado = await commandPaginado.ExecuteReaderAsync();
 
-            while (await reader.ReadAsync())
+            while (await readerPaginado.ReadAsync())
             {
                 subgrupos.Add(new Subgrupo
                 {
-                    Id = Convert.ToInt32(reader.GetValue(0)),
-                    Nome = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                    GrupoCodigo = reader.IsDBNull(2) ? null : Convert.ToInt32(reader.GetValue(2))
+                    Id = Convert.ToInt32(readerPaginado.GetValue(0)),
+                    Nome = readerPaginado.IsDBNull(1) ? string.Empty : readerPaginado.GetString(1),
+                    GrupoCodigo = readerPaginado.IsDBNull(2) ? null : Convert.ToInt32(readerPaginado.GetValue(2))
                 });
             }
 
-            return Ok(subgrupos);
+            var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
+
+            return Ok(new PaginacaoResposta<Subgrupo>
+            {
+                Page = page,
+                PageSize = pageSize,
+                Total = total,
+                TotalPages = totalPages,
+                Items = subgrupos
+            });
         }
         catch (SqlException ex)
         {
@@ -66,7 +122,7 @@ public class SubgruposController : ControllerBase
     }
 
     [HttpGet("por-grupo/{grupoCodigo:int}")]
-    public async Task<ActionResult<IEnumerable<Subgrupo>>> GetPorGrupo(int grupoCodigo)
+    public async Task<ActionResult> GetPorGrupo(int grupoCodigo, [FromQuery] PaginacaoQuery paginacao)
     {
         try
         {
@@ -82,28 +138,91 @@ public class SubgruposController : ControllerBase
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
-            const string sql = @"
-                SELECT codsubgrupo, nomesubgrupo, CodGrupo
+            if (!paginacao.HasPagination)
+            {
+                const string sqlSemPaginacao = @"
+                    SELECT codsubgrupo, nomesubgrupo, CodGrupo
+                    FROM Subgrupos
+                    WHERE CodGrupo = @GrupoCodigo
+                    ORDER BY nomesubgrupo";
+
+                await using var commandSemPaginacao = new SqlCommand(sqlSemPaginacao, connection);
+                commandSemPaginacao.Parameters.AddWithValue("@GrupoCodigo", grupoCodigo);
+                await using var readerSemPaginacao = await commandSemPaginacao.ExecuteReaderAsync();
+
+                while (await readerSemPaginacao.ReadAsync())
+                {
+                    subgrupos.Add(new Subgrupo
+                    {
+                        Id = Convert.ToInt32(readerSemPaginacao.GetValue(0)),
+                        Nome = readerSemPaginacao.IsDBNull(1) ? string.Empty : readerSemPaginacao.GetString(1),
+                        GrupoCodigo = readerSemPaginacao.IsDBNull(2) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(2))
+                    });
+                }
+
+                return Ok(subgrupos);
+            }
+
+            if (!paginacao.TryResolve(out var page, out var pageSize, out var error))
+            {
+                return BadRequest(error);
+            }
+
+            const string sqlTotal = @"
+                SELECT COUNT(1)
                 FROM Subgrupos
-                WHERE CodGrupo = @GrupoCodigo
-                ORDER BY nomesubgrupo";
+                WHERE CodGrupo = @GrupoCodigo";
 
-            await using var command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@GrupoCodigo", grupoCodigo);
+            await using var commandTotal = new SqlCommand(sqlTotal, connection);
+            commandTotal.Parameters.AddWithValue("@GrupoCodigo", grupoCodigo);
+            var total = Convert.ToInt32(await commandTotal.ExecuteScalarAsync());
 
-            await using var reader = await command.ExecuteReaderAsync();
+            var rowStart = ((page - 1) * pageSize) + 1;
+            var rowEnd = rowStart + pageSize - 1;
 
-            while (await reader.ReadAsync())
+            const string sqlPaginado = @"
+                WITH Dados AS
+                (
+                    SELECT
+                        codsubgrupo,
+                        nomesubgrupo,
+                        CodGrupo,
+                        ROW_NUMBER() OVER (ORDER BY nomesubgrupo) AS RowNum
+                    FROM Subgrupos
+                    WHERE CodGrupo = @GrupoCodigo
+                )
+                SELECT codsubgrupo, nomesubgrupo, CodGrupo
+                FROM Dados
+                WHERE RowNum BETWEEN @RowStart AND @RowEnd
+                ORDER BY RowNum";
+
+            await using var commandPaginado = new SqlCommand(sqlPaginado, connection);
+            commandPaginado.Parameters.AddWithValue("@GrupoCodigo", grupoCodigo);
+            commandPaginado.Parameters.AddWithValue("@RowStart", rowStart);
+            commandPaginado.Parameters.AddWithValue("@RowEnd", rowEnd);
+
+            await using var readerPaginado = await commandPaginado.ExecuteReaderAsync();
+
+            while (await readerPaginado.ReadAsync())
             {
                 subgrupos.Add(new Subgrupo
                 {
-                    Id = Convert.ToInt32(reader.GetValue(0)),
-                    Nome = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                    GrupoCodigo = reader.IsDBNull(2) ? null : Convert.ToInt32(reader.GetValue(2))
+                    Id = Convert.ToInt32(readerPaginado.GetValue(0)),
+                    Nome = readerPaginado.IsDBNull(1) ? string.Empty : readerPaginado.GetString(1),
+                    GrupoCodigo = readerPaginado.IsDBNull(2) ? null : Convert.ToInt32(readerPaginado.GetValue(2))
                 });
             }
 
-            return Ok(subgrupos);
+            var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
+
+            return Ok(new PaginacaoResposta<Subgrupo>
+            {
+                Page = page,
+                PageSize = pageSize,
+                Total = total,
+                TotalPages = totalPages,
+                Items = subgrupos
+            });
         }
         catch (SqlException ex)
         {
