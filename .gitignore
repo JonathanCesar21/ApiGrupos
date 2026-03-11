@@ -490,3 +490,4 @@ tools/ngrok/
 # local publish output
 publish-win/
 publish-somee/
+dist/
