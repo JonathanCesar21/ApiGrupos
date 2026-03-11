@@ -18,12 +18,14 @@ public partial class Form1 : Form
         _refreshTimer.Tick += async (_, _) =>
         {
             UpdateProcessStatusLabel();
+            UpdateTunnelStatusLabel();
             await RefreshConfiguracaoStatusAsync(silent: true);
             RefreshRequestLog();
         };
         _refreshTimer.Start();
 
         UpdateProcessStatusLabel();
+        UpdateTunnelStatusLabel();
         _ = RefreshConfiguracaoStatusAsync(silent: true);
         RefreshRequestLog();
     }
@@ -35,17 +37,49 @@ public partial class Form1 : Form
         if (!string.IsNullOrWhiteSpace(repoRoot))
         {
             txtExePath.Text = Path.Combine(repoRoot, "publish-win", "ApiGrupos.exe");
-            txtLogPath.Text = Path.Combine(repoRoot, "publish-win", "logs", "requests.log");
+            txtCloudflaredPath.Text = TryFindCloudflaredPath() ?? string.Empty;
         }
         else
         {
             var managerDir = AppContext.BaseDirectory;
             var distApiDir = Path.GetFullPath(Path.Combine(managerDir, "..", "Api"));
+            var cloudflaredDir = Path.GetFullPath(Path.Combine(managerDir, "..", "Cloudflared", "cloudflared.exe"));
             txtExePath.Text = Path.Combine(distApiDir, "ApiGrupos.exe");
-            txtLogPath.Text = Path.Combine(distApiDir, "logs", "requests.log");
+            txtCloudflaredPath.Text = cloudflaredDir;
         }
 
+        txtTunnelConfigPath.Text = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".cloudflared",
+            "config.yml");
+        txtTunnelName.Text = "apigrupos";
+
+        txtLogPath.Text = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "ApiGrupos",
+            "logs",
+            "requests.log");
+
         txtApiUrl.Text = "http://localhost:5000";
+    }
+
+    private static string? TryFindCloudflaredPath()
+    {
+        var candidates = new[]
+        {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "WinGet", "Packages", "Cloudflare.cloudflared_Microsoft.Winget.Source_8wekyb3d8bbwe", "cloudflared.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Cloudflare", "cloudflared", "cloudflared.exe")
+        };
+
+        foreach (var path in candidates)
+        {
+            if (File.Exists(path))
+            {
+                return path;
+            }
+        }
+
+        return null;
     }
 
     private string? FindRepoRoot()
@@ -83,6 +117,14 @@ public partial class Form1 : Form
         lblProcessStatus.Text = runningCount > 0
             ? $"Status processo: API em execucao ({runningCount})"
             : "Status processo: API parada";
+    }
+
+    private void UpdateTunnelStatusLabel()
+    {
+        var runningCount = Process.GetProcessesByName("cloudflared").Length;
+        lblTunnelStatus.Text = runningCount > 0
+            ? $"Status tunnel: ativo ({runningCount})"
+            : "Status tunnel: parado";
     }
 
     private async Task RefreshConfiguracaoStatusAsync(bool silent = false)
@@ -160,12 +202,22 @@ public partial class Form1 : Form
         if (openFileDialogExe.ShowDialog() == DialogResult.OK)
         {
             txtExePath.Text = openFileDialogExe.FileName;
+        }
+    }
 
-            var exeDirectory = Path.GetDirectoryName(openFileDialogExe.FileName);
-            if (!string.IsNullOrWhiteSpace(exeDirectory))
-            {
-                txtLogPath.Text = Path.Combine(exeDirectory, "logs", "requests.log");
-            }
+    private void btnBrowseCloudflared_Click(object? sender, EventArgs e)
+    {
+        if (openFileDialogCloudflared.ShowDialog() == DialogResult.OK)
+        {
+            txtCloudflaredPath.Text = openFileDialogCloudflared.FileName;
+        }
+    }
+
+    private void btnBrowseTunnelConfig_Click(object? sender, EventArgs e)
+    {
+        if (openFileDialogTunnelConfig.ShowDialog() == DialogResult.OK)
+        {
+            txtTunnelConfigPath.Text = openFileDialogTunnelConfig.FileName;
         }
     }
 
@@ -181,7 +233,6 @@ public partial class Form1 : Form
             }
 
             var workingDir = Path.GetDirectoryName(exePath)!;
-            Directory.CreateDirectory(Path.Combine(workingDir, "logs"));
 
             var processInfo = new ProcessStartInfo(exePath)
             {
@@ -219,6 +270,71 @@ public partial class Form1 : Form
         catch (Exception ex)
         {
             MessageBox.Show($"Falha ao parar API: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void btnStartTunnel_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            var cloudflaredPath = txtCloudflaredPath.Text.Trim();
+            var tunnelConfigPath = txtTunnelConfigPath.Text.Trim();
+            var tunnelName = txtTunnelName.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(cloudflaredPath) || !File.Exists(cloudflaredPath))
+            {
+                MessageBox.Show("Informe o caminho valido para cloudflared.exe.", "Atencao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(tunnelConfigPath) || !File.Exists(tunnelConfigPath))
+            {
+                MessageBox.Show("Informe um caminho valido para o config.yml do tunnel.", "Atencao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(tunnelName))
+            {
+                MessageBox.Show("Informe o nome do tunnel.", "Atencao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var processInfo = new ProcessStartInfo(cloudflaredPath)
+            {
+                WorkingDirectory = Path.GetDirectoryName(cloudflaredPath)!,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Arguments = $"--config \"{tunnelConfigPath}\" tunnel run {tunnelName}"
+            };
+
+            Process.Start(processInfo);
+
+            Thread.Sleep(800);
+            UpdateTunnelStatusLabel();
+            MessageBox.Show("Tunnel iniciado.", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Falha ao iniciar tunnel: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void btnStopTunnel_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            var processes = Process.GetProcessesByName("cloudflared");
+            foreach (var process in processes)
+            {
+                process.Kill(true);
+            }
+
+            UpdateTunnelStatusLabel();
+            MessageBox.Show(processes.Length > 0 ? "Tunnel parado." : "Nao havia tunnel em execucao.", "Informacao", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Falha ao parar tunnel: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

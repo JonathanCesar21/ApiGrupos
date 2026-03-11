@@ -27,14 +27,19 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 [Files]
 Source: "..\dist\ApiGrupos\*"; DestDir: "{app}\Api"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\dist\PainelControle\*"; DestDir: "{app}\Painel"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\Cloudflared\*"; DestDir: "{app}\Cloudflared"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\installer\start-api.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\installer\stop-api.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\installer\abrir-painel.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\installer\start-tunnel.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\installer\stop-tunnel.bat"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\ApiGrupos\Painel de Controle"; Filename: "{app}\Painel\{#MyAppExeName}"
 Name: "{autoprograms}\ApiGrupos\Iniciar API"; Filename: "{app}\start-api.bat"
 Name: "{autoprograms}\ApiGrupos\Parar API"; Filename: "{app}\stop-api.bat"
+Name: "{autoprograms}\ApiGrupos\Iniciar Tunnel"; Filename: "{app}\start-tunnel.bat"
+Name: "{autoprograms}\ApiGrupos\Parar Tunnel"; Filename: "{app}\stop-tunnel.bat"
 Name: "{autodesktop}\Painel ApiGrupos"; Filename: "{app}\Painel\{#MyAppExeName}"
 
 [Run]

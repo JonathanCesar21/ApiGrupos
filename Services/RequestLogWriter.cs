@@ -7,7 +7,10 @@ public class RequestLogWriter
 
     public RequestLogWriter(IHostEnvironment environment)
     {
-        var logsDirectory = Path.Combine(environment.ContentRootPath, "logs");
+        var logsDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "ApiGrupos",
+            "logs");
         Directory.CreateDirectory(logsDirectory);
         _logFilePath = Path.Combine(logsDirectory, "requests.log");
     }
