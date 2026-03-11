@@ -36,7 +36,7 @@ public class ProdutoBarrasController : ControllerBase
             if (!paginacao.HasPagination)
             {
                 const string sqlSemPaginacao = @"
-                    SELECT pb.referencia, pb.barras, pb.SubGrupo, pb.Grupo, pb.DescProd, pb.Numero, pb.Cor
+                    SELECT p.codigo, pb.referencia, pb.barras, pb.SubGrupo, pb.Grupo, pb.DescProd, pb.Numero, pb.Cor
                     FROM ProdutoBarras pb
                     INNER JOIN Produtos p ON p.referencia = pb.referencia
                     WHERE p.cadastro >= @CadastroMinimo
@@ -50,13 +50,14 @@ public class ProdutoBarrasController : ControllerBase
                 {
                     produtoBarras.Add(new ProdutoBarra
                     {
-                        Referencia = readerSemPaginacao.IsDBNull(0) ? string.Empty : readerSemPaginacao.GetString(0),
-                        Barras = readerSemPaginacao.IsDBNull(1) ? string.Empty : readerSemPaginacao.GetString(1),
-                        SubGrupo = readerSemPaginacao.IsDBNull(2) ? string.Empty : readerSemPaginacao.GetString(2),
-                        Grupo = readerSemPaginacao.IsDBNull(3) ? string.Empty : readerSemPaginacao.GetString(3),
-                        DescProd = readerSemPaginacao.IsDBNull(4) ? string.Empty : readerSemPaginacao.GetString(4),
-                        Numero = readerSemPaginacao.IsDBNull(5) ? string.Empty : readerSemPaginacao.GetValue(5).ToString() ?? string.Empty,
-                        Cor = readerSemPaginacao.IsDBNull(6) ? string.Empty : readerSemPaginacao.GetString(6)
+                        CodProd = readerSemPaginacao.IsDBNull(0) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(0)),
+                        Referencia = readerSemPaginacao.IsDBNull(1) ? string.Empty : readerSemPaginacao.GetString(1),
+                        Barras = readerSemPaginacao.IsDBNull(2) ? string.Empty : readerSemPaginacao.GetString(2),
+                        SubGrupo = readerSemPaginacao.IsDBNull(3) ? string.Empty : readerSemPaginacao.GetString(3),
+                        Grupo = readerSemPaginacao.IsDBNull(4) ? string.Empty : readerSemPaginacao.GetString(4),
+                        DescProd = readerSemPaginacao.IsDBNull(5) ? string.Empty : readerSemPaginacao.GetString(5),
+                        Numero = readerSemPaginacao.IsDBNull(6) ? string.Empty : readerSemPaginacao.GetValue(6).ToString() ?? string.Empty,
+                        Cor = readerSemPaginacao.IsDBNull(7) ? string.Empty : readerSemPaginacao.GetString(7)
                     });
                 }
 
@@ -92,12 +93,13 @@ public class ProdutoBarrasController : ControllerBase
                         pb.DescProd,
                         pb.Numero,
                         pb.Cor,
+                        p.codigo,
                         ROW_NUMBER() OVER (ORDER BY pb.barras) AS RowNum
                     FROM ProdutoBarras pb
                     INNER JOIN Produtos p ON p.referencia = pb.referencia
                     WHERE p.cadastro >= @CadastroMinimo
                 )
-                SELECT referencia, barras, SubGrupo, Grupo, DescProd, Numero, Cor
+                SELECT codigo, referencia, barras, SubGrupo, Grupo, DescProd, Numero, Cor
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum";
@@ -112,13 +114,14 @@ public class ProdutoBarrasController : ControllerBase
             {
                 produtoBarras.Add(new ProdutoBarra
                 {
-                    Referencia = readerPaginado.IsDBNull(0) ? string.Empty : readerPaginado.GetString(0),
-                    Barras = readerPaginado.IsDBNull(1) ? string.Empty : readerPaginado.GetString(1),
-                    SubGrupo = readerPaginado.IsDBNull(2) ? string.Empty : readerPaginado.GetString(2),
-                    Grupo = readerPaginado.IsDBNull(3) ? string.Empty : readerPaginado.GetString(3),
-                    DescProd = readerPaginado.IsDBNull(4) ? string.Empty : readerPaginado.GetString(4),
-                    Numero = readerPaginado.IsDBNull(5) ? string.Empty : readerPaginado.GetValue(5).ToString() ?? string.Empty,
-                    Cor = readerPaginado.IsDBNull(6) ? string.Empty : readerPaginado.GetString(6)
+                    CodProd = readerPaginado.IsDBNull(0) ? null : Convert.ToInt32(readerPaginado.GetValue(0)),
+                    Referencia = readerPaginado.IsDBNull(1) ? string.Empty : readerPaginado.GetString(1),
+                    Barras = readerPaginado.IsDBNull(2) ? string.Empty : readerPaginado.GetString(2),
+                    SubGrupo = readerPaginado.IsDBNull(3) ? string.Empty : readerPaginado.GetString(3),
+                    Grupo = readerPaginado.IsDBNull(4) ? string.Empty : readerPaginado.GetString(4),
+                    DescProd = readerPaginado.IsDBNull(5) ? string.Empty : readerPaginado.GetString(5),
+                    Numero = readerPaginado.IsDBNull(6) ? string.Empty : readerPaginado.GetValue(6).ToString() ?? string.Empty,
+                    Cor = readerPaginado.IsDBNull(7) ? string.Empty : readerPaginado.GetString(7)
                 });
             }
 

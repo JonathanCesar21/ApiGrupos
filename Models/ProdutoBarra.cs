@@ -4,6 +4,9 @@ namespace ApiGrupos.Models;
 
 public class ProdutoBarra
 {
+    [JsonPropertyName("CodProd")]
+    public int? CodProd { get; set; }
+
     [JsonPropertyName("referencia")]
     public string Referencia { get; set; } = string.Empty;
 
