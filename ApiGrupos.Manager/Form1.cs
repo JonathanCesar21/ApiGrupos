@@ -8,6 +8,14 @@ public partial class Form1 : Form
 {
     private readonly HttpClient _httpClient = new();
     private readonly System.Windows.Forms.Timer _refreshTimer = new();
+    private static readonly string[] EndpointPaths =
+    {
+        "/api/unidade",
+        "/api/ncm",
+        "/api/situacao-tributaria",
+        "/api/situacao-tributaria/rpa",
+        "/api/situacao-tributaria/simples"
+    };
 
     public Form1()
     {
@@ -61,6 +69,7 @@ public partial class Form1 : Form
             "requests.log");
 
         txtApiUrl.Text = "http://localhost:5000";
+        RefreshEndpointsList();
     }
 
     private static string? TryFindCloudflaredPath()
@@ -109,6 +118,20 @@ public partial class Form1 : Form
     {
         var baseUrl = txtApiUrl.Text.Trim().TrimEnd('/');
         return new Uri($"{baseUrl}{relativePath}");
+    }
+
+    private void RefreshEndpointsList()
+    {
+        var baseUrl = txtApiUrl.Text.Trim().TrimEnd('/');
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            txtEndpoints.Text = string.Join(Environment.NewLine, EndpointPaths);
+            return;
+        }
+
+        txtEndpoints.Text = string.Join(
+            Environment.NewLine,
+            EndpointPaths.Select(path => $"{baseUrl}{path}"));
     }
 
     private void UpdateProcessStatusLabel()
@@ -395,6 +418,31 @@ public partial class Form1 : Form
         catch (Exception ex)
         {
             MessageBox.Show($"Falha ao abrir swagger: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void txtApiUrl_TextChanged(object? sender, EventArgs e)
+    {
+        RefreshEndpointsList();
+    }
+
+    private void btnCopiarEndpoints_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            var content = txtEndpoints.Text.Trim();
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                MessageBox.Show("Nao ha endpoints para copiar.", "Informacao", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            Clipboard.SetText(content);
+            MessageBox.Show("Endpoints copiados para a area de transferencia.", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Falha ao copiar endpoints: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

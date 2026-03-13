@@ -11,6 +11,9 @@ partial class Form1
     private Label lblApiUrl;
     private TextBox txtApiUrl;
     private Button btnOpenSwagger;
+    private Label lblEndpoints;
+    private TextBox txtEndpoints;
+    private Button btnCopiarEndpoints;
     private Label lblUsuario;
     private TextBox txtUsuario;
     private Label lblSenha;
@@ -59,6 +62,9 @@ partial class Form1
         lblApiUrl = new Label();
         txtApiUrl = new TextBox();
         btnOpenSwagger = new Button();
+        lblEndpoints = new Label();
+        txtEndpoints = new TextBox();
+        btnCopiarEndpoints = new Button();
         lblUsuario = new Label();
         txtUsuario = new TextBox();
         lblSenha = new Label();
@@ -149,6 +155,7 @@ partial class Form1
         txtApiUrl.Name = "txtApiUrl";
         txtApiUrl.Size = new Size(340, 23);
         txtApiUrl.TabIndex = 6;
+        txtApiUrl.TextChanged += txtApiUrl_TextChanged;
         // 
         // btnOpenSwagger
         // 
@@ -160,10 +167,40 @@ partial class Form1
         btnOpenSwagger.UseVisualStyleBackColor = true;
         btnOpenSwagger.Click += btnOpenSwagger_Click;
         // 
+        // lblEndpoints
+        // 
+        lblEndpoints.AutoSize = true;
+        lblEndpoints.Location = new Point(474, 71);
+        lblEndpoints.Name = "lblEndpoints";
+        lblEndpoints.Size = new Size(121, 15);
+        lblEndpoints.TabIndex = 32;
+        lblEndpoints.Text = "Novos endpoints da API";
+        // 
+        // txtEndpoints
+        // 
+        txtEndpoints.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        txtEndpoints.Location = new Point(474, 89);
+        txtEndpoints.Multiline = true;
+        txtEndpoints.Name = "txtEndpoints";
+        txtEndpoints.ReadOnly = true;
+        txtEndpoints.ScrollBars = ScrollBars.Vertical;
+        txtEndpoints.Size = new Size(452, 99);
+        txtEndpoints.TabIndex = 33;
+        // 
+        // btnCopiarEndpoints
+        // 
+        btnCopiarEndpoints.Location = new Point(816, 58);
+        btnCopiarEndpoints.Name = "btnCopiarEndpoints";
+        btnCopiarEndpoints.Size = new Size(110, 25);
+        btnCopiarEndpoints.TabIndex = 34;
+        btnCopiarEndpoints.Text = "Copiar lista";
+        btnCopiarEndpoints.UseVisualStyleBackColor = true;
+        btnCopiarEndpoints.Click += btnCopiarEndpoints_Click;
+        // 
         // lblUsuario
         // 
         lblUsuario.AutoSize = true;
-        lblUsuario.Location = new Point(12, 123);
+        lblUsuario.Location = new Point(12, 205);
         lblUsuario.Name = "lblUsuario";
         lblUsuario.Size = new Size(69, 15);
         lblUsuario.TabIndex = 8;
@@ -171,7 +208,7 @@ partial class Form1
         // 
         // txtUsuario
         // 
-        txtUsuario.Location = new Point(12, 141);
+        txtUsuario.Location = new Point(12, 223);
         txtUsuario.Name = "txtUsuario";
         txtUsuario.Size = new Size(220, 23);
         txtUsuario.TabIndex = 9;
@@ -179,7 +216,7 @@ partial class Form1
         // lblSenha
         // 
         lblSenha.AutoSize = true;
-        lblSenha.Location = new Point(238, 123);
+        lblSenha.Location = new Point(238, 205);
         lblSenha.Name = "lblSenha";
         lblSenha.Size = new Size(34, 15);
         lblSenha.TabIndex = 10;
@@ -187,7 +224,7 @@ partial class Form1
         // 
         // txtSenha
         // 
-        txtSenha.Location = new Point(238, 141);
+        txtSenha.Location = new Point(238, 223);
         txtSenha.Name = "txtSenha";
         txtSenha.PasswordChar = '*';
         txtSenha.Size = new Size(220, 23);
@@ -195,7 +232,7 @@ partial class Form1
         // 
         // btnSalvarCredenciais
         // 
-        btnSalvarCredenciais.Location = new Point(464, 140);
+        btnSalvarCredenciais.Location = new Point(464, 222);
         btnSalvarCredenciais.Name = "btnSalvarCredenciais";
         btnSalvarCredenciais.Size = new Size(150, 25);
         btnSalvarCredenciais.TabIndex = 12;
@@ -205,7 +242,7 @@ partial class Form1
         // 
         // btnConsultarStatus
         // 
-        btnConsultarStatus.Location = new Point(620, 140);
+        btnConsultarStatus.Location = new Point(620, 222);
         btnConsultarStatus.Name = "btnConsultarStatus";
         btnConsultarStatus.Size = new Size(130, 25);
         btnConsultarStatus.TabIndex = 13;
@@ -216,7 +253,7 @@ partial class Form1
         // lblConfigStatus
         // 
         lblConfigStatus.AutoSize = true;
-        lblConfigStatus.Location = new Point(12, 170);
+        lblConfigStatus.Location = new Point(12, 252);
         lblConfigStatus.Name = "lblConfigStatus";
         lblConfigStatus.Size = new Size(122, 15);
         lblConfigStatus.TabIndex = 14;
@@ -225,7 +262,7 @@ partial class Form1
         // lblProcessStatus
         // 
         lblProcessStatus.AutoSize = true;
-        lblProcessStatus.Location = new Point(280, 170);
+        lblProcessStatus.Location = new Point(280, 252);
         lblProcessStatus.Name = "lblProcessStatus";
         lblProcessStatus.Size = new Size(93, 15);
         lblProcessStatus.TabIndex = 15;
@@ -234,7 +271,7 @@ partial class Form1
         // lblCloudflaredPath
         // 
         lblCloudflaredPath.AutoSize = true;
-        lblCloudflaredPath.Location = new Point(12, 196);
+        lblCloudflaredPath.Location = new Point(12, 278);
         lblCloudflaredPath.Name = "lblCloudflaredPath";
         lblCloudflaredPath.Size = new Size(164, 15);
         lblCloudflaredPath.TabIndex = 16;
@@ -242,14 +279,14 @@ partial class Form1
         // 
         // txtCloudflaredPath
         // 
-        txtCloudflaredPath.Location = new Point(12, 214);
+        txtCloudflaredPath.Location = new Point(12, 296);
         txtCloudflaredPath.Name = "txtCloudflaredPath";
         txtCloudflaredPath.Size = new Size(604, 23);
         txtCloudflaredPath.TabIndex = 17;
         // 
         // btnBrowseCloudflared
         // 
-        btnBrowseCloudflared.Location = new Point(622, 213);
+        btnBrowseCloudflared.Location = new Point(622, 295);
         btnBrowseCloudflared.Name = "btnBrowseCloudflared";
         btnBrowseCloudflared.Size = new Size(82, 25);
         btnBrowseCloudflared.TabIndex = 18;
@@ -260,7 +297,7 @@ partial class Form1
         // lblTunnelConfigPath
         // 
         lblTunnelConfigPath.AutoSize = true;
-        lblTunnelConfigPath.Location = new Point(12, 246);
+        lblTunnelConfigPath.Location = new Point(12, 328);
         lblTunnelConfigPath.Name = "lblTunnelConfigPath";
         lblTunnelConfigPath.Size = new Size(149, 15);
         lblTunnelConfigPath.TabIndex = 19;
@@ -268,14 +305,14 @@ partial class Form1
         // 
         // txtTunnelConfigPath
         // 
-        txtTunnelConfigPath.Location = new Point(12, 264);
+        txtTunnelConfigPath.Location = new Point(12, 346);
         txtTunnelConfigPath.Name = "txtTunnelConfigPath";
         txtTunnelConfigPath.Size = new Size(604, 23);
         txtTunnelConfigPath.TabIndex = 20;
         // 
         // btnBrowseTunnelConfig
         // 
-        btnBrowseTunnelConfig.Location = new Point(622, 263);
+        btnBrowseTunnelConfig.Location = new Point(622, 345);
         btnBrowseTunnelConfig.Name = "btnBrowseTunnelConfig";
         btnBrowseTunnelConfig.Size = new Size(82, 25);
         btnBrowseTunnelConfig.TabIndex = 21;
@@ -286,7 +323,7 @@ partial class Form1
         // lblTunnelName
         // 
         lblTunnelName.AutoSize = true;
-        lblTunnelName.Location = new Point(12, 296);
+        lblTunnelName.Location = new Point(12, 378);
         lblTunnelName.Name = "lblTunnelName";
         lblTunnelName.Size = new Size(91, 15);
         lblTunnelName.TabIndex = 22;
@@ -294,14 +331,14 @@ partial class Form1
         // 
         // txtTunnelName
         // 
-        txtTunnelName.Location = new Point(12, 314);
+        txtTunnelName.Location = new Point(12, 396);
         txtTunnelName.Name = "txtTunnelName";
         txtTunnelName.Size = new Size(220, 23);
         txtTunnelName.TabIndex = 23;
         // 
         // btnStartTunnel
         // 
-        btnStartTunnel.Location = new Point(238, 313);
+        btnStartTunnel.Location = new Point(238, 395);
         btnStartTunnel.Name = "btnStartTunnel";
         btnStartTunnel.Size = new Size(130, 25);
         btnStartTunnel.TabIndex = 24;
@@ -311,7 +348,7 @@ partial class Form1
         // 
         // btnStopTunnel
         // 
-        btnStopTunnel.Location = new Point(374, 313);
+        btnStopTunnel.Location = new Point(374, 395);
         btnStopTunnel.Name = "btnStopTunnel";
         btnStopTunnel.Size = new Size(130, 25);
         btnStopTunnel.TabIndex = 25;
@@ -322,7 +359,7 @@ partial class Form1
         // lblTunnelStatus
         // 
         lblTunnelStatus.AutoSize = true;
-        lblTunnelStatus.Location = new Point(510, 318);
+        lblTunnelStatus.Location = new Point(510, 400);
         lblTunnelStatus.Name = "lblTunnelStatus";
         lblTunnelStatus.Size = new Size(81, 15);
         lblTunnelStatus.TabIndex = 26;
@@ -331,7 +368,7 @@ partial class Form1
         // lblLogPath
         // 
         lblLogPath.AutoSize = true;
-        lblLogPath.Location = new Point(12, 347);
+        lblLogPath.Location = new Point(12, 429);
         lblLogPath.Name = "lblLogPath";
         lblLogPath.Size = new Size(99, 15);
         lblLogPath.TabIndex = 27;
@@ -339,7 +376,7 @@ partial class Form1
         // 
         // txtLogPath
         // 
-        txtLogPath.Location = new Point(12, 365);
+        txtLogPath.Location = new Point(12, 447);
         txtLogPath.Name = "txtLogPath";
         txtLogPath.Size = new Size(737, 23);
         txtLogPath.TabIndex = 28;
@@ -347,7 +384,7 @@ partial class Form1
         // lblLogs
         // 
         lblLogs.AutoSize = true;
-        lblLogs.Location = new Point(12, 394);
+        lblLogs.Location = new Point(12, 476);
         lblLogs.Name = "lblLogs";
         lblLogs.Size = new Size(120, 15);
         lblLogs.TabIndex = 29;
@@ -356,7 +393,7 @@ partial class Form1
         // txtRequestLog
         // 
         txtRequestLog.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        txtRequestLog.Location = new Point(12, 412);
+        txtRequestLog.Location = new Point(12, 494);
         txtRequestLog.Multiline = true;
         txtRequestLog.Name = "txtRequestLog";
         txtRequestLog.ReadOnly = true;
@@ -366,7 +403,7 @@ partial class Form1
         // 
         // btnAtualizarLogs
         // 
-        btnAtualizarLogs.Location = new Point(755, 364);
+        btnAtualizarLogs.Location = new Point(755, 446);
         btnAtualizarLogs.Name = "btnAtualizarLogs";
         btnAtualizarLogs.Size = new Size(171, 25);
         btnAtualizarLogs.TabIndex = 31;
@@ -393,7 +430,10 @@ partial class Form1
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(940, 644);
+        ClientSize = new Size(940, 729);
+        Controls.Add(btnCopiarEndpoints);
+        Controls.Add(txtEndpoints);
+        Controls.Add(lblEndpoints);
         Controls.Add(btnAtualizarLogs);
         Controls.Add(txtRequestLog);
         Controls.Add(lblLogs);
