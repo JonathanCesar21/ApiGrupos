@@ -27,4 +27,10 @@ public class ProdutoBarra
 
     [JsonPropertyName("Cor")]
     public string Cor { get; set; } = string.Empty;
+
+    [JsonPropertyName("NomeFornecedor")]
+    public string NomeFornecedor { get; set; } = string.Empty;
+
+    [JsonPropertyName("CodFornecedor")]
+    public int? CodFornecedor { get; set; }
 }

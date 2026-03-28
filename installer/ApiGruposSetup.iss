@@ -1,5 +1,5 @@
 #define MyAppName "ApiGrupos Controle"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.1.1"
 #define MyAppPublisher "ApiGrupos"
 #define MyAppURL "https://api.apiaob.com.br"
 #define MyAppExeName "ApiGrupos.Manager.exe"
