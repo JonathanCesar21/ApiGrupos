@@ -36,7 +36,7 @@ public class SubgruposController : ControllerBase
             if (!paginacao.HasPagination)
             {
                 const string sqlSemPaginacao = @"
-                    SELECT codsubgrupo, nomesubgrupo, CodGrupo
+                    SELECT codsubgrupo, nomesubgrupo, CodGrupo, ClFiscal AS CodNcm
                     FROM Subgrupos
                     ORDER BY nomesubgrupo";
 
@@ -49,7 +49,8 @@ public class SubgruposController : ControllerBase
                     {
                         Id = Convert.ToInt32(readerSemPaginacao.GetValue(0)),
                         Nome = readerSemPaginacao.IsDBNull(1) ? string.Empty : readerSemPaginacao.GetString(1),
-                        GrupoCodigo = readerSemPaginacao.IsDBNull(2) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(2))
+                        GrupoCodigo = readerSemPaginacao.IsDBNull(2) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(2)),
+                        CodNcm = readerSemPaginacao.IsDBNull(3) ? null : readerSemPaginacao.GetValue(3).ToString()
                     });
                 }
 
@@ -75,10 +76,11 @@ public class SubgruposController : ControllerBase
                         codsubgrupo,
                         nomesubgrupo,
                         CodGrupo,
+                        ClFiscal AS CodNcm,
                         ROW_NUMBER() OVER (ORDER BY nomesubgrupo) AS RowNum
                     FROM Subgrupos
                 )
-                SELECT codsubgrupo, nomesubgrupo, CodGrupo
+                SELECT codsubgrupo, nomesubgrupo, CodGrupo, CodNcm
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum";
@@ -94,7 +96,8 @@ public class SubgruposController : ControllerBase
                 {
                     Id = Convert.ToInt32(readerPaginado.GetValue(0)),
                     Nome = readerPaginado.IsDBNull(1) ? string.Empty : readerPaginado.GetString(1),
-                    GrupoCodigo = readerPaginado.IsDBNull(2) ? null : Convert.ToInt32(readerPaginado.GetValue(2))
+                    GrupoCodigo = readerPaginado.IsDBNull(2) ? null : Convert.ToInt32(readerPaginado.GetValue(2)),
+                    CodNcm = readerPaginado.IsDBNull(3) ? null : readerPaginado.GetValue(3).ToString()
                 });
             }
 
@@ -141,7 +144,7 @@ public class SubgruposController : ControllerBase
             if (!paginacao.HasPagination)
             {
                 const string sqlSemPaginacao = @"
-                    SELECT codsubgrupo, nomesubgrupo, CodGrupo
+                    SELECT codsubgrupo, nomesubgrupo, CodGrupo, ClFiscal AS CodNcm
                     FROM Subgrupos
                     WHERE CodGrupo = @GrupoCodigo
                     ORDER BY nomesubgrupo";
@@ -156,7 +159,8 @@ public class SubgruposController : ControllerBase
                     {
                         Id = Convert.ToInt32(readerSemPaginacao.GetValue(0)),
                         Nome = readerSemPaginacao.IsDBNull(1) ? string.Empty : readerSemPaginacao.GetString(1),
-                        GrupoCodigo = readerSemPaginacao.IsDBNull(2) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(2))
+                        GrupoCodigo = readerSemPaginacao.IsDBNull(2) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(2)),
+                        CodNcm = readerSemPaginacao.IsDBNull(3) ? null : readerSemPaginacao.GetValue(3).ToString()
                     });
                 }
 
@@ -187,11 +191,12 @@ public class SubgruposController : ControllerBase
                         codsubgrupo,
                         nomesubgrupo,
                         CodGrupo,
+                        ClFiscal AS CodNcm,
                         ROW_NUMBER() OVER (ORDER BY nomesubgrupo) AS RowNum
                     FROM Subgrupos
                     WHERE CodGrupo = @GrupoCodigo
                 )
-                SELECT codsubgrupo, nomesubgrupo, CodGrupo
+                SELECT codsubgrupo, nomesubgrupo, CodGrupo, CodNcm
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum";
@@ -209,7 +214,8 @@ public class SubgruposController : ControllerBase
                 {
                     Id = Convert.ToInt32(readerPaginado.GetValue(0)),
                     Nome = readerPaginado.IsDBNull(1) ? string.Empty : readerPaginado.GetString(1),
-                    GrupoCodigo = readerPaginado.IsDBNull(2) ? null : Convert.ToInt32(readerPaginado.GetValue(2))
+                    GrupoCodigo = readerPaginado.IsDBNull(2) ? null : Convert.ToInt32(readerPaginado.GetValue(2)),
+                    CodNcm = readerPaginado.IsDBNull(3) ? null : readerPaginado.GetValue(3).ToString()
                 });
             }
 
