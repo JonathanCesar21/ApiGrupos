@@ -22,6 +22,9 @@ public class ProdutoBarra
     [JsonPropertyName("Grupo")]
     public string Grupo { get; set; } = string.Empty;
 
+    [JsonPropertyName("CodSecao")]
+    public int? CodSecao { get; set; }
+
     [JsonPropertyName("Numero")]
     public string Numero { get; set; } = string.Empty;
 

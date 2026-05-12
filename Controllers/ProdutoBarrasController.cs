@@ -36,7 +36,7 @@ public class ProdutoBarrasController : ControllerBase
             if (!paginacao.HasPagination)
             {
                 const string sqlSemPaginacao = @"
-                    SELECT p.codigo, pb.referencia, pb.barras, pb.SubGrupo, pb.Grupo, pb.DescProd, pb.Numero, pb.Cor, pb.fornecedor AS NomeFornecedor, pb.CodFor AS CodFornecedor
+                    SELECT p.codigo, pb.referencia, pb.barras, pb.SubGrupo, pb.Grupo, pb.DescProd, pb.Numero, pb.Cor, pb.fornecedor AS NomeFornecedor, pb.CodFor AS CodFornecedor, pb.CodSecao
                     FROM ProdutoBarras pb
                     INNER JOIN Produtos p ON p.referencia = pb.referencia
                     WHERE p.cadastro >= @CadastroMinimo
@@ -59,7 +59,8 @@ public class ProdutoBarrasController : ControllerBase
                         Numero = readerSemPaginacao.IsDBNull(6) ? string.Empty : readerSemPaginacao.GetValue(6).ToString() ?? string.Empty,
                         Cor = readerSemPaginacao.IsDBNull(7) ? string.Empty : readerSemPaginacao.GetString(7),
                         NomeFornecedor = readerSemPaginacao.IsDBNull(8) ? string.Empty : readerSemPaginacao.GetString(8),
-                        CodFornecedor = readerSemPaginacao.IsDBNull(9) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(9))
+                        CodFornecedor = readerSemPaginacao.IsDBNull(9) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(9)),
+                        CodSecao = readerSemPaginacao.IsDBNull(10) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(10))
                     });
                 }
 
@@ -98,12 +99,13 @@ public class ProdutoBarrasController : ControllerBase
                         pb.fornecedor AS NomeFornecedor,
                         pb.CodFor AS CodFornecedor,
                         p.codigo,
+                        pb.CodSecao,
                         ROW_NUMBER() OVER (ORDER BY pb.barras) AS RowNum
                     FROM ProdutoBarras pb
                     INNER JOIN Produtos p ON p.referencia = pb.referencia
                     WHERE p.cadastro >= @CadastroMinimo
                 )
-                SELECT codigo, referencia, barras, SubGrupo, Grupo, DescProd, Numero, Cor, NomeFornecedor, CodFornecedor
+                SELECT codigo, referencia, barras, SubGrupo, Grupo, DescProd, Numero, Cor, NomeFornecedor, CodFornecedor, CodSecao
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum";
@@ -127,7 +129,8 @@ public class ProdutoBarrasController : ControllerBase
                     Numero = readerPaginado.IsDBNull(6) ? string.Empty : readerPaginado.GetValue(6).ToString() ?? string.Empty,
                     Cor = readerPaginado.IsDBNull(7) ? string.Empty : readerPaginado.GetString(7),
                     NomeFornecedor = readerPaginado.IsDBNull(8) ? string.Empty : readerPaginado.GetString(8),
-                    CodFornecedor = readerPaginado.IsDBNull(9) ? null : Convert.ToInt32(readerPaginado.GetValue(9))
+                    CodFornecedor = readerPaginado.IsDBNull(9) ? null : Convert.ToInt32(readerPaginado.GetValue(9)),
+                    CodSecao = readerPaginado.IsDBNull(10) ? null : Convert.ToInt32(readerPaginado.GetValue(10))
                 });
             }
 
