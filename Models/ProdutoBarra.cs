@@ -25,15 +25,30 @@ public class ProdutoBarra
     [JsonPropertyName("CodSecao")]
     public int? CodSecao { get; set; }
 
+    [JsonPropertyName("CodClassificacao")]
+    public int? CodClassificacao { get; set; }
+
+    [JsonPropertyName("CodCategoria")]
+    public int? CodCategoria { get; set; }
+
     [JsonPropertyName("Numero")]
     public string Numero { get; set; } = string.Empty;
 
     [JsonPropertyName("Cor")]
     public string Cor { get; set; } = string.Empty;
 
+    [JsonPropertyName("Colecao")]
+    public string Colecao { get; set; } = string.Empty;
+
     [JsonPropertyName("NomeFornecedor")]
     public string NomeFornecedor { get; set; } = string.Empty;
 
     [JsonPropertyName("CodFornecedor")]
     public int? CodFornecedor { get; set; }
+
+    [JsonPropertyName("ValorCusto")]
+    public decimal ValorCusto { get; set; }
+
+    [JsonPropertyName("Valor")]
+    public decimal Valor { get; set; }
 }

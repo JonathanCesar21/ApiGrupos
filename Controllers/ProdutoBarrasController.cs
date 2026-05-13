@@ -29,6 +29,7 @@ public class ProdutoBarrasController : ControllerBase
             }
 
             var produtoBarras = new List<ProdutoBarra>();
+            var cadastroMinimo = new DateTime(2026, 1, 1);
 
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
@@ -36,14 +37,14 @@ public class ProdutoBarrasController : ControllerBase
             if (!paginacao.HasPagination)
             {
                 const string sqlSemPaginacao = @"
-                    SELECT p.codigo, pb.referencia, pb.barras, pb.SubGrupo, pb.Grupo, pb.DescProd, pb.Numero, pb.Cor, pb.fornecedor AS NomeFornecedor, pb.CodFor AS CodFornecedor, pb.CodSecao
+                    SELECT p.codigo, pb.referencia, pb.barras, pb.SubGrupo, pb.Grupo, pb.DescProd, pb.Numero, pb.Cor, pb.fornecedor AS NomeFornecedor, pb.CodFor AS CodFornecedor, pb.CodSecao, p.Classificacao AS CodClassificacao, p.Categoria AS CodCategoria, p.Colecao AS Colecao, pb.ValorCusto, pb.valor AS Valor
                     FROM ProdutoBarras pb
                     INNER JOIN Produtos p ON p.referencia = pb.referencia
                     WHERE p.cadastro >= @CadastroMinimo
                     ORDER BY pb.barras";
 
                 await using var commandSemPaginacao = new SqlCommand(sqlSemPaginacao, connection);
-                commandSemPaginacao.Parameters.AddWithValue("@CadastroMinimo", new DateTime(2026, 3, 25));
+                commandSemPaginacao.Parameters.AddWithValue("@CadastroMinimo", cadastroMinimo);
                 await using var readerSemPaginacao = await commandSemPaginacao.ExecuteReaderAsync();
 
                 while (await readerSemPaginacao.ReadAsync())
@@ -60,7 +61,12 @@ public class ProdutoBarrasController : ControllerBase
                         Cor = readerSemPaginacao.IsDBNull(7) ? string.Empty : readerSemPaginacao.GetString(7),
                         NomeFornecedor = readerSemPaginacao.IsDBNull(8) ? string.Empty : readerSemPaginacao.GetString(8),
                         CodFornecedor = readerSemPaginacao.IsDBNull(9) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(9)),
-                        CodSecao = readerSemPaginacao.IsDBNull(10) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(10))
+                        CodSecao = readerSemPaginacao.IsDBNull(10) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(10)),
+                        CodClassificacao = readerSemPaginacao.IsDBNull(11) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(11)),
+                        CodCategoria = readerSemPaginacao.IsDBNull(12) ? null : Convert.ToInt32(readerSemPaginacao.GetValue(12)),
+                        Colecao = readerSemPaginacao.IsDBNull(13) ? string.Empty : readerSemPaginacao.GetValue(13).ToString() ?? string.Empty,
+                        ValorCusto = readerSemPaginacao.IsDBNull(14) ? 0 : readerSemPaginacao.GetDecimal(14),
+                        Valor = readerSemPaginacao.IsDBNull(15) ? 0 : readerSemPaginacao.GetDecimal(15)
                     });
                 }
 
@@ -79,7 +85,7 @@ public class ProdutoBarrasController : ControllerBase
                 WHERE p.cadastro >= @CadastroMinimo";
 
             await using var commandTotal = new SqlCommand(sqlTotal, connection);
-            commandTotal.Parameters.AddWithValue("@CadastroMinimo", new DateTime(2026, 3, 25));
+            commandTotal.Parameters.AddWithValue("@CadastroMinimo", cadastroMinimo);
             var total = Convert.ToInt32(await commandTotal.ExecuteScalarAsync());
 
             var rowStart = ((page - 1) * pageSize) + 1;
@@ -100,18 +106,23 @@ public class ProdutoBarrasController : ControllerBase
                         pb.CodFor AS CodFornecedor,
                         p.codigo,
                         pb.CodSecao,
+                        p.Classificacao AS CodClassificacao,
+                        p.Categoria AS CodCategoria,
+                        p.Colecao AS Colecao,
+                        pb.ValorCusto,
+                        pb.valor AS Valor,
                         ROW_NUMBER() OVER (ORDER BY pb.barras) AS RowNum
                     FROM ProdutoBarras pb
                     INNER JOIN Produtos p ON p.referencia = pb.referencia
                     WHERE p.cadastro >= @CadastroMinimo
                 )
-                SELECT codigo, referencia, barras, SubGrupo, Grupo, DescProd, Numero, Cor, NomeFornecedor, CodFornecedor, CodSecao
+                SELECT codigo, referencia, barras, SubGrupo, Grupo, DescProd, Numero, Cor, NomeFornecedor, CodFornecedor, CodSecao, CodClassificacao, CodCategoria, Colecao, ValorCusto, Valor
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum";
 
             await using var commandPaginado = new SqlCommand(sqlPaginado, connection);
-            commandPaginado.Parameters.AddWithValue("@CadastroMinimo", new DateTime(2026, 3, 25));
+            commandPaginado.Parameters.AddWithValue("@CadastroMinimo", cadastroMinimo);
             commandPaginado.Parameters.AddWithValue("@RowStart", rowStart);
             commandPaginado.Parameters.AddWithValue("@RowEnd", rowEnd);
             await using var readerPaginado = await commandPaginado.ExecuteReaderAsync();
@@ -130,7 +141,12 @@ public class ProdutoBarrasController : ControllerBase
                     Cor = readerPaginado.IsDBNull(7) ? string.Empty : readerPaginado.GetString(7),
                     NomeFornecedor = readerPaginado.IsDBNull(8) ? string.Empty : readerPaginado.GetString(8),
                     CodFornecedor = readerPaginado.IsDBNull(9) ? null : Convert.ToInt32(readerPaginado.GetValue(9)),
-                    CodSecao = readerPaginado.IsDBNull(10) ? null : Convert.ToInt32(readerPaginado.GetValue(10))
+                    CodSecao = readerPaginado.IsDBNull(10) ? null : Convert.ToInt32(readerPaginado.GetValue(10)),
+                    CodClassificacao = readerPaginado.IsDBNull(11) ? null : Convert.ToInt32(readerPaginado.GetValue(11)),
+                    CodCategoria = readerPaginado.IsDBNull(12) ? null : Convert.ToInt32(readerPaginado.GetValue(12)),
+                    Colecao = readerPaginado.IsDBNull(13) ? string.Empty : readerPaginado.GetValue(13).ToString() ?? string.Empty,
+                    ValorCusto = readerPaginado.IsDBNull(14) ? 0 : readerPaginado.GetDecimal(14),
+                    Valor = readerPaginado.IsDBNull(15) ? 0 : readerPaginado.GetDecimal(15)
                 });
             }
 
