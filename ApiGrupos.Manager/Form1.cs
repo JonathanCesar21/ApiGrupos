@@ -8,6 +8,8 @@ public partial class Form1 : Form
 {
     private readonly HttpClient _httpClient = new();
     private readonly System.Windows.Forms.Timer _refreshTimer = new();
+    private readonly object _tunnelLogLock = new();
+    private Process? _tunnelProcess;
     private static readonly string[] EndpointPaths =
     {
         "/api/unidade",
@@ -62,11 +64,7 @@ public partial class Form1 : Form
             "config.yml");
         txtTunnelName.Text = "apigrupos";
 
-        txtLogPath.Text = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "ApiGrupos",
-            "logs",
-            "requests.log");
+        txtLogPath.Text = Path.Combine(GetLogsDirectory(), "requests.log");
 
         txtApiUrl.Text = "http://localhost:5000";
         RefreshEndpointsList();
@@ -118,6 +116,19 @@ public partial class Form1 : Form
     {
         var baseUrl = txtApiUrl.Text.Trim().TrimEnd('/');
         return new Uri($"{baseUrl}{relativePath}");
+    }
+
+    private static string GetLogsDirectory()
+    {
+        return Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "ApiGrupos",
+            "logs");
+    }
+
+    private static string GetTunnelLogPath()
+    {
+        return Path.Combine(GetLogsDirectory(), "cloudflared.log");
     }
 
     private void RefreshEndpointsList()
@@ -218,6 +229,80 @@ public partial class Form1 : Form
         }
 
         return queue;
+    }
+
+    private static string? TryResolveCredentialsFilePath(string tunnelConfigPath)
+    {
+        foreach (var line in File.ReadLines(tunnelConfigPath))
+        {
+            var trimmedLine = line.Trim();
+            if (!trimmedLine.StartsWith("credentials-file:", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var rawValue = trimmedLine["credentials-file:".Length..].Trim().Trim('"', '\'');
+            if (string.IsNullOrWhiteSpace(rawValue))
+            {
+                return null;
+            }
+
+            var expandedValue = Environment.ExpandEnvironmentVariables(rawValue);
+            if (Path.IsPathRooted(expandedValue))
+            {
+                return expandedValue;
+            }
+
+            var configDirectory = Path.GetDirectoryName(tunnelConfigPath) ?? AppContext.BaseDirectory;
+            return Path.GetFullPath(Path.Combine(configDirectory, expandedValue));
+        }
+
+        return null;
+    }
+
+    private void StartTunnelLogSession(string cloudflaredPath, string tunnelConfigPath, string tunnelName)
+    {
+        Directory.CreateDirectory(GetLogsDirectory());
+
+        var header = string.Join(
+            Environment.NewLine,
+            [
+                string.Empty,
+                $"===== {DateTime.Now:yyyy-MM-dd HH:mm:ss} =====",
+                $"Executavel: {cloudflaredPath}",
+                $"Config: {tunnelConfigPath}",
+                $"Tunnel: {tunnelName}"
+            ]) + Environment.NewLine;
+
+        lock (_tunnelLogLock)
+        {
+            File.AppendAllText(GetTunnelLogPath(), header, Encoding.UTF8);
+        }
+    }
+
+    private void AppendTunnelLogLine(string channel, string? line)
+    {
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            return;
+        }
+
+        var entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {channel}: {line}{Environment.NewLine}";
+        lock (_tunnelLogLock)
+        {
+            File.AppendAllText(GetTunnelLogPath(), entry, Encoding.UTF8);
+        }
+    }
+
+    private string GetTunnelLogExcerpt(int maxLines)
+    {
+        var tunnelLogPath = GetTunnelLogPath();
+        if (!File.Exists(tunnelLogPath))
+        {
+            return "Log do cloudflared ainda nao foi gerado.";
+        }
+
+        return string.Join(Environment.NewLine, ReadLastLines(tunnelLogPath, maxLines));
     }
 
     private void btnBrowseExe_Click(object? sender, EventArgs e)
@@ -322,19 +407,68 @@ public partial class Form1 : Form
                 return;
             }
 
+            var credentialsFilePath = TryResolveCredentialsFilePath(tunnelConfigPath);
+            if (!string.IsNullOrWhiteSpace(credentialsFilePath) && !File.Exists(credentialsFilePath))
+            {
+                MessageBox.Show(
+                    $"O config.yml referencia um arquivo de credenciais inexistente:{Environment.NewLine}{credentialsFilePath}{Environment.NewLine}{Environment.NewLine}Ajuste o campo credentials-file no config.yml ou copie esse .json para a nova maquina.",
+                    "Atencao",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
             var processInfo = new ProcessStartInfo(cloudflaredPath)
             {
                 WorkingDirectory = Path.GetDirectoryName(cloudflaredPath)!,
                 UseShellExecute = false,
                 CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
                 Arguments = $"--config \"{tunnelConfigPath}\" tunnel run {tunnelName}"
             };
 
-            Process.Start(processInfo);
+            StartTunnelLogSession(cloudflaredPath, tunnelConfigPath, tunnelName);
 
-            Thread.Sleep(800);
+            var process = new Process
+            {
+                StartInfo = processInfo,
+                EnableRaisingEvents = true
+            };
+            process.OutputDataReceived += (_, args) => AppendTunnelLogLine("OUT", args.Data);
+            process.ErrorDataReceived += (_, args) => AppendTunnelLogLine("ERR", args.Data);
+
+            if (!process.Start())
+            {
+                MessageBox.Show("Nao foi possivel iniciar o processo do tunnel.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            _tunnelProcess = process;
+
+            Thread.Sleep(2000);
             UpdateTunnelStatusLabel();
-            MessageBox.Show("Tunnel iniciado.", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            if (process.HasExited)
+            {
+                var excerpt = GetTunnelLogExcerpt(12);
+                MessageBox.Show(
+                    $"O cloudflared encerrou logo apos iniciar.{Environment.NewLine}{Environment.NewLine}Verifique o config.yml, o nome do tunnel e o arquivo de credenciais.{Environment.NewLine}Log: {GetTunnelLogPath()}{Environment.NewLine}{Environment.NewLine}Ultimas linhas:{Environment.NewLine}{excerpt}",
+                    "Erro",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            MessageBox.Show(
+                $"Tunnel iniciado.{Environment.NewLine}Log: {GetTunnelLogPath()}",
+                "Sucesso",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
@@ -352,6 +486,7 @@ public partial class Form1 : Form
                 process.Kill(true);
             }
 
+            _tunnelProcess = null;
             UpdateTunnelStatusLabel();
             MessageBox.Show(processes.Length > 0 ? "Tunnel parado." : "Nao havia tunnel em execucao.", "Informacao", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
