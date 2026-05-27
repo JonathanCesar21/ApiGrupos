@@ -29,7 +29,7 @@ public class ProdutoBarrasController : ControllerBase
             }
 
             var produtoBarras = new List<ProdutoBarra>();
-            var cadastroMinimo = new DateTime(2026, 1, 1);
+            var cadastroMinimo = new DateTime(2025, 1, 1);
 
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
