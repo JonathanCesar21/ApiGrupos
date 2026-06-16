@@ -1,5 +1,5 @@
 #define MyAppName "ApiGrupos Controle"
-#define MyAppVersion "1.1.3"
+#define MyAppVersion "1.1.4"
 #define MyAppPublisher "ApiGrupos"
 #define MyAppURL "https://api.apiaob.com.br"
 #define MyAppExeName "ApiGrupos.Manager.exe"
@@ -33,6 +33,7 @@ Source: "..\installer\stop-api.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\installer\abrir-painel.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\installer\start-tunnel.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\installer\stop-tunnel.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\DOCUMENTACAO_API.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\ApiGrupos\Painel de Controle"; Filename: "{app}\Painel\{#MyAppExeName}"
