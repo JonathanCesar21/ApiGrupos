@@ -236,6 +236,16 @@ Lista somente as situacoes tributarias marcadas para Simples Nacional (`SN = '1'
 
 Lista variacoes de produtos e codigos de barras vinculados aos produtos cadastrados desde `2025-01-01`. Aceita paginacao opcional e ordena por barras.
 
+Parametros de query:
+
+| Parametro | Tipo | Descricao |
+|---|---|---|
+| `page` | inteiro opcional | Pagina desejada. Quando informado com `pageSize`, retorna resposta paginada. |
+| `pageSize` | inteiro opcional | Quantidade de itens por pagina. Valor maximo: `150000`. |
+| `referencias` | texto opcional | Lista de referencias separadas por virgula. Exemplo: `/api/produto-barras?referencias=8523.108BR,26-8523.127BR`. Quando preenchido, ignora paginacao e remove o filtro de cadastro desde `2025-01-01`, retornando todas as variacoes dessas referencias, inclusive antigas. O filtro faz match exato da referencia usando apenas `TRIM` e comparacao case-insensitive; prefixos como `26-` nao sao removidos nem normalizados. |
+
+Sem `referencias`, mantem o comportamento padrao com filtro de cadastro desde `2025-01-01`; se `page` ou `pageSize` forem informados, retorna o envelope paginado. Com `referencias`, retorna uma lista simples de itens.
+
 | Campo | Tipo | Descricao |
 |---|---|---|
 | `CodProd` | inteiro ou nulo | Codigo do produto. |
