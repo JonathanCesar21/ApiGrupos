@@ -44,6 +44,7 @@ Os endpoints de vendas e entradas exigem:
 - `dataFim`: ultimo dia incluido no resultado, no formato `YYYY-MM-DD`.
 
 Nao existe limite de dias para o intervalo. As consultas possuem timeout de 60 segundos e podem ser canceladas ao abortar a requisicao HTTP.
+Os endpoints agregados aceitam consultas a partir de `2024-01-01`; datas iniciais anteriores sao recusadas.
 
 ### Status HTTP comuns
 
@@ -365,6 +366,31 @@ GET /api/consulta-vendas?dataInicio=2022-01-01&dataFim=2022-01-31
 
 Os tipos JSON seguem os tipos retornados diretamente pelo SQL Server.
 
+### `GET /api/consulta-vendas-agregado`
+
+Retorna vendas agrupadas diretamente no SQL Server a partir de `ConsultaVenda`. Esse endpoint reduz o volume de retorno para uso em analises, curva ABC e recompra. Possui timeout de 60 segundos, suporta cancelamento e aceita `dataInicio` a partir de `2024-01-01`.
+
+Exemplo:
+
+```http
+GET /api/consulta-vendas-agregado?dataInicio=2024-01-01&dataFim=2024-01-31
+```
+
+| Campo | Tipo | Descricao |
+|---|---|---|
+| `data_venda` | data | Data da venda, sem horario. |
+| `referencia` | texto | Referencia do produto. |
+| `numero` | texto | Numeracao ou tamanho. |
+| `loja` | texto | Codigo da loja. |
+| `grupo` | texto | Grupo do produto. |
+| `subgrupo` | texto | Subgrupo do produto. |
+| `fornecedor` | texto | Fornecedor do produto. |
+| `qtde_venda` | decimal | Soma da quantidade vendida no grupo. |
+| `total_venda` | decimal | Soma do campo `valor` no grupo. |
+| `total_custo` | decimal | Soma do campo `ValorCusto` no grupo. |
+
+Agrupamento aplicado: `data`, `referencia`, `Numero`, `loja`, `Grupo`, `SubGrupo` e `Fornecedor`. Registros com soma de quantidade igual a zero sao removidos.
+
 ## Entradas
 
 ### `GET /api/consulta-entradas`
@@ -400,9 +426,35 @@ A resposta inclui:
 Os nomes e tipos das colunas de `centrada` precisam ser obtidos diretamente do esquema do SQL Server. Os tipos JSON seguem os tipos retornados pelo banco.
 Se `centrada` possuir uma coluna com exatamente o mesmo nome de uma coluna adicional, o valor da coluna adicional prevalece no JSON.
 
+### `GET /api/consulta-entradas-agregado`
+
+Retorna entradas agrupadas diretamente no SQL Server a partir de `centrada`, usando os mesmos relacionamentos de produto, fornecedor, grupo, subgrupo e numeracao do endpoint `/api/consulta-entradas`. Possui timeout de 60 segundos, suporta cancelamento e aceita `dataInicio` a partir de `2024-01-01`.
+
+Exemplo:
+
+```http
+GET /api/consulta-entradas-agregado?dataInicio=2024-01-01&dataFim=2024-01-31
+```
+
+| Campo | Tipo | Descricao |
+|---|---|---|
+| `data_entrada` | data | Data da entrada, sem horario. |
+| `referencia` | texto | Referencia do produto. |
+| `numero` | texto | Numeracao ou tamanho. |
+| `loja` | texto | Codigo da loja. |
+| `grupo` | texto | Grupo do produto. |
+| `subgrupo` | texto | Subgrupo do produto. |
+| `fornecedor` | texto | Nome do fornecedor. |
+| `qtde_entrada` | decimal | Soma da quantidade de entrada no grupo. |
+| `valor_entrada` | decimal | Soma de `Quant * Unitario`; quando `Unitario` for nulo, usa `Valor`. |
+
+Antes da agregacao, a consulta aplica a mesma deduplicacao por `ROW_NUMBER()` usada no endpoint detalhado de entradas. Registros com soma de quantidade igual a zero sao removidos.
+
 ## Observacoes tecnicas
 
 - `/api/consulta-vendas`, `/api/consulta-entradas` e `/api/estoque-lojas` carregam todos os registros retornados em memoria antes de responder.
+- `/api/consulta-vendas-agregado` e `/api/consulta-entradas-agregado` retornam dados ja agrupados no SQL Server, reduzindo o payload.
 - O cancelamento desses endpoints ocorre quando o cliente aborta a requisicao HTTP.
 - `/api/estoque-matriz` nao possui timeout explicito de 60 segundos nem cancelamento propagado.
 - Os endpoints sem paginacao opcional podem retornar volumes grandes de dados.
+- Os endpoints novos de agregacao executam apenas `SELECT`; nao fazem `INSERT`, `UPDATE`, `DELETE`, `ALTER` ou qualquer alteracao no schema.
