@@ -55,7 +55,13 @@ public class ConsultaVendasAgregadoController : ControllerBase
                     ISNULL(SubGrupo, '') AS subgrupo,
                     ISNULL(Fornecedor, '') AS fornecedor,
                     SUM(ISNULL(quant, 0)) AS qtde_venda,
-                    SUM(ISNULL(valor, 0)) AS total_venda,
+                    SUM(
+                        CASE
+                            WHEN ISNULL(quant, 0) < 0 AND ISNULL(ValorReal, 0) > 0 THEN -ISNULL(ValorReal, 0)
+                            WHEN ISNULL(quant, 0) > 0 AND ISNULL(ValorReal, 0) < 0 THEN -ISNULL(ValorReal, 0)
+                            ELSE ISNULL(ValorReal, 0)
+                        END
+                    ) AS total_venda,
                     SUM(ISNULL(ValorCusto, 0)) AS total_custo
                 FROM ConsultaVenda
                 WHERE data >= @DataInicio

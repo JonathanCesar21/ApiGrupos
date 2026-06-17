@@ -354,7 +354,7 @@ GET /api/consulta-vendas?dataInicio=2022-01-01&dataFim=2022-01-31
 | `valor` | Valor unitario registrado. |
 | `ValorTotal` | Valor total do item ou venda. |
 | `DescUnitario` | Desconto unitario. |
-| `ValorReal` | Valor efetivo apos ajustes ou descontos. |
+| `ValorReal` | Valor liquido efetivo da linha apos ajustes ou descontos. |
 | `DescontoVenda` | Desconto aplicado na venda. |
 | `data` | Data da venda. |
 | `Cor` | Cor do produto. |
@@ -395,11 +395,33 @@ GET /api/consulta-vendas-agregado?dataInicio=2024-01-01&dataFim=2024-01-31
 | `grupo` | texto | Grupo do produto. |
 | `subgrupo` | texto | Subgrupo do produto. |
 | `fornecedor` | texto | Fornecedor do produto. |
-| `qtde_venda` | decimal | Soma da quantidade vendida no grupo. |
-| `total_venda` | decimal | Soma do campo `valor` no grupo. |
+| `qtde_venda` | decimal | Soma da quantidade vendida no grupo, preservando o sinal original da origem. |
+| `total_venda` | decimal | Soma do campo `ValorReal` liquido no grupo, preservando descontos e aplicando o sinal de `quant` quando a devolucao vier com valor positivo na origem. |
 | `total_custo` | decimal | Soma do campo `ValorCusto` no grupo. |
 
-Agrupamento aplicado: `data`, `referencia`, `Numero`, `loja`, `Grupo`, `SubGrupo` e `Fornecedor`. Registros com soma de quantidade igual a zero sao removidos.
+Agrupamento aplicado: `data`, `referencia`, `Numero`, `loja`, `Grupo`, `SubGrupo` e `Fornecedor`. Registros com soma de quantidade igual a zero sao removidos. A consulta nao recalcula faturamento por preco de tabela; o faturamento vem do valor liquido efetivo da linha (`ValorReal`) e o sinal de `total_venda` acompanha o sinal de `quant` quando a origem informa devolucao com `ValorReal` positivo.
+
+Validacao operacional:
+
+```http
+GET /api/consulta-vendas-agregado?dataInicio=2026-06-10&dataFim=2026-06-15
+```
+
+Ao filtrar o resultado por `fornecedor = TRIFIL`, a soma das linhas filtradas deve retornar:
+
+| Metrica | Valor esperado |
+|---|---:|
+| `SUM(qtde_venda)` | `200` |
+| `SUM(total_venda)` | `10795,12` |
+
+Para devolucoes, `quant` deve permanecer negativo e `total_venda` deve sair negativo mesmo quando `ValorReal` vier positivo na origem. Exemplo: uma devolucao `-1 / 109,90` e uma venda `+1 / 109,90` para a mesma combinacao de agrupamento resultam em quantidade liquida `0` e nao devem inflar `total_venda`; pelo `HAVING`, grupos com quantidade liquida zero nao sao retornados.
+
+Caso isolado usado para conferencia: fornecedor `TRIFIL`, loja `7`, data `2026-06-15`, referencia `C06244`.
+
+| `numero` | `qtde_venda` esperada | `total_venda` esperado |
+|---|---:|---:|
+| `50` | `1` | `109,90` |
+| `52` | `-1` | `-109,90` |
 
 ## Entradas
 
@@ -455,8 +477,8 @@ GET /api/consulta-entradas-agregado?dataInicio=2024-01-01&dataFim=2024-01-31
 | `grupo` | texto | Grupo do produto. |
 | `subgrupo` | texto | Subgrupo do produto. |
 | `fornecedor` | texto | Nome do fornecedor. |
-| `qtde_entrada` | decimal | Soma da quantidade de entrada no grupo. |
-| `valor_entrada` | decimal | Soma de `Quant * Unitario`; quando `Unitario` for nulo, usa `Valor`. |
+| `qtde_entrada` | decimal | Soma da quantidade de entrada no grupo, preservando o sinal original da origem. |
+| `valor_entrada` | decimal | Soma de `Quant * Unitario`; quando `Unitario` for nulo, usa `Valor`. Preserva o sinal original de `Quant`. |
 
 Antes da agregacao, a consulta aplica a mesma deduplicacao por `ROW_NUMBER()` usada no endpoint detalhado de entradas. Registros com soma de quantidade igual a zero sao removidos.
 
