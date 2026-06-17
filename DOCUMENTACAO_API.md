@@ -352,9 +352,9 @@ GET /api/consulta-vendas?dataInicio=2022-01-01&dataFim=2022-01-31
 | `Categoria` | Categoria do produto. |
 | `pedido` | Numero ou identificador do pedido. |
 | `valor` | Valor unitario registrado. |
-| `ValorTotal` | Valor total do item ou venda. |
+| `ValorTotal` | Valor liquido total da linha ou venda, ja com desconto aplicado quando informado pela origem. |
 | `DescUnitario` | Desconto unitario. |
-| `ValorReal` | Valor liquido efetivo da linha apos ajustes ou descontos. |
+| `ValorReal` | Valor informado pela origem para a linha; pode representar valor bruto antes de descontos dependendo da venda. |
 | `DescontoVenda` | Desconto aplicado na venda. |
 | `data` | Data da venda. |
 | `Cor` | Cor do produto. |
@@ -396,10 +396,10 @@ GET /api/consulta-vendas-agregado?dataInicio=2024-01-01&dataFim=2024-01-31
 | `subgrupo` | texto | Subgrupo do produto. |
 | `fornecedor` | texto | Fornecedor do produto. |
 | `qtde_venda` | decimal | Soma da quantidade vendida no grupo, preservando o sinal original da origem. |
-| `total_venda` | decimal | Soma do campo `ValorReal` liquido no grupo, preservando descontos e aplicando o sinal de `quant` quando a devolucao vier com valor positivo na origem. |
+| `total_venda` | decimal | Soma do valor liquido da linha, preservando descontos e aplicando o sinal de `quant` quando a devolucao vier com valor positivo na origem. |
 | `total_custo` | decimal | Soma do campo `ValorCusto` no grupo. |
 
-Agrupamento aplicado: `data`, `referencia`, `Numero`, `loja`, `Grupo`, `SubGrupo` e `Fornecedor`. Registros com soma de quantidade igual a zero sao removidos. A consulta nao recalcula faturamento por preco de tabela; o faturamento vem do valor liquido efetivo da linha (`ValorReal`) e o sinal de `total_venda` acompanha o sinal de `quant` quando a origem informa devolucao com `ValorReal` positivo.
+Agrupamento aplicado: `data`, `referencia`, `Numero`, `loja`, `Grupo`, `SubGrupo` e `Fornecedor`. Registros com soma de quantidade igual a zero sao removidos. A consulta nao recalcula faturamento por preco de tabela. O faturamento usa o valor liquido da linha, primeiro `ValorTotal`, depois `valor` se `ValorTotal` estiver nulo, e por ultimo `ValorReal - DescontoVenda` se os dois primeiros nao existirem. O sinal de `total_venda` acompanha o sinal de `quant` quando a origem informa devolucao com valor positivo.
 
 Validacao operacional:
 
@@ -416,12 +416,16 @@ Ao filtrar o resultado por `fornecedor = TRIFIL`, a soma das linhas filtradas de
 
 Para devolucoes, `quant` deve permanecer negativo e `total_venda` deve sair negativo mesmo quando `ValorReal` vier positivo na origem. Exemplo: uma devolucao `-1 / 109,90` e uma venda `+1 / 109,90` para a mesma combinacao de agrupamento resultam em quantidade liquida `0` e nao devem inflar `total_venda`; pelo `HAVING`, grupos com quantidade liquida zero nao sao retornados.
 
+Exemplo de desconto por venda: no pedido `8021726-08`, as linhas liquidas `210,54`, `105,27` e `184,19` somam `500,00`, enquanto o subtotal bruto `569,75` e o desconto `69,75` nao devem inflar `total_venda`.
+
 Caso isolado usado para conferencia: fornecedor `TRIFIL`, loja `7`, data `2026-06-15`, referencia `C06244`.
 
 | `numero` | `qtde_venda` esperada | `total_venda` esperado |
 |---|---:|---:|
 | `50` | `1` | `109,90` |
 | `52` | `-1` | `-109,90` |
+
+Conferencia adicional: para a referencia `C06244` no periodo `2026-06-10` a `2026-06-15`, o total esperado e `1637,05`.
 
 ## Entradas
 

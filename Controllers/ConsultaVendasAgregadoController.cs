@@ -46,6 +46,27 @@ public class ConsultaVendasAgregadoController : ControllerBase
             await connection.OpenAsync(cancellationToken);
 
             const string sql = """
+                WITH Vendas AS
+                (
+                    SELECT
+                        data,
+                        referencia,
+                        Numero,
+                        loja,
+                        Grupo,
+                        SubGrupo,
+                        Fornecedor,
+                        quant,
+                        COALESCE(
+                            ValorTotal,
+                            valor,
+                            ISNULL(ValorReal, 0) - ISNULL(DescontoVenda, 0)
+                        ) AS valor_liquido_linha,
+                        ValorCusto
+                    FROM ConsultaVenda
+                    WHERE data >= @DataInicio
+                      AND data < @DataFimExclusivo
+                )
                 SELECT
                     CONVERT(date, data) AS data_venda,
                     ISNULL(referencia, '') AS referencia,
@@ -57,15 +78,13 @@ public class ConsultaVendasAgregadoController : ControllerBase
                     SUM(ISNULL(quant, 0)) AS qtde_venda,
                     SUM(
                         CASE
-                            WHEN ISNULL(quant, 0) < 0 AND ISNULL(ValorReal, 0) > 0 THEN -ISNULL(ValorReal, 0)
-                            WHEN ISNULL(quant, 0) > 0 AND ISNULL(ValorReal, 0) < 0 THEN -ISNULL(ValorReal, 0)
-                            ELSE ISNULL(ValorReal, 0)
+                            WHEN ISNULL(quant, 0) < 0 AND ISNULL(valor_liquido_linha, 0) > 0 THEN -ISNULL(valor_liquido_linha, 0)
+                            WHEN ISNULL(quant, 0) > 0 AND ISNULL(valor_liquido_linha, 0) < 0 THEN -ISNULL(valor_liquido_linha, 0)
+                            ELSE ISNULL(valor_liquido_linha, 0)
                         END
                     ) AS total_venda,
                     SUM(ISNULL(ValorCusto, 0)) AS total_custo
-                FROM ConsultaVenda
-                WHERE data >= @DataInicio
-                  AND data < @DataFimExclusivo
+                FROM Vendas
                 GROUP BY
                     CONVERT(date, data),
                     ISNULL(referencia, ''),

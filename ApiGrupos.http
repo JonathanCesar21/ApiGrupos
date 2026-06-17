@@ -14,6 +14,7 @@ Accept: application/json
 # Esperado para 2026-06-10 a 2026-06-15: qtde_venda = 200, total_venda = 10795,12.
 # Caso isolado: fornecedor TRIFIL, loja 7, data 2026-06-15, referencia C06244.
 # Esperado: numero 50 => +1 / +109,90; numero 52 => -1 / -109,90.
+# Conferencia C06244 no periodo: total_venda = 1637,05.
 GET {{ApiGrupos_HostAddress}}/api/consulta-vendas-agregado?dataInicio=2026-06-10&dataFim=2026-06-15
 Accept: application/json
 
