@@ -54,7 +54,7 @@ Os endpoints agregados aceitam consultas a partir de `2024-01-01`; datas iniciai
 | `400` | Parametros invalidos ou ausentes. |
 | `500` | Erro ao executar ou processar a consulta. |
 | `503` | Credenciais do banco ainda nao configuradas. |
-| `504` | Consulta de vendas, entradas ou estoque das lojas excedeu 60 segundos. |
+| `504` | Consulta de vendas, entradas, estoque das lojas ou controle de volumes excedeu 60 segundos. |
 
 ## Configuracao
 
@@ -333,6 +333,32 @@ Lista transferencias automaticas pendentes: `Automatica = '1'`, `statusimpressao
 | `NotaFiscal` | texto | Numero da nota fiscal. |
 | `Loja` | texto | Codigo da loja de destino. |
 
+## Controle de volumes
+
+### `GET /api/ControleVolumes`
+
+Retorna os registros da tabela `ControleVolumes`. Nao possui paginacao. Possui timeout de 60 segundos e suporta cancelamento.
+
+Consulta executada:
+
+```sql
+SELECT Lote, Descricao, quant, total, data, usuario, Loja, Status
+FROM ControleVolumes
+```
+
+| Campo |
+|---|
+| `Lote` |
+| `Descricao` |
+| `quant` |
+| `total` |
+| `data` |
+| `usuario` |
+| `Loja` |
+| `Status` |
+
+Os tipos JSON seguem os tipos retornados diretamente pelo SQL Server.
+
 ## Vendas
 
 ### `GET /api/consulta-vendas`
@@ -488,7 +514,7 @@ Antes da agregacao, a consulta aplica a mesma deduplicacao por `ROW_NUMBER()` us
 
 ## Observacoes tecnicas
 
-- `/api/consulta-vendas`, `/api/consulta-entradas` e `/api/estoque-lojas` carregam todos os registros retornados em memoria antes de responder.
+- `/api/consulta-vendas`, `/api/consulta-entradas`, `/api/estoque-lojas` e `/api/ControleVolumes` carregam todos os registros retornados em memoria antes de responder.
 - `/api/consulta-vendas-agregado` e `/api/consulta-entradas-agregado` retornam dados ja agrupados no SQL Server, reduzindo o payload.
 - O cancelamento desses endpoints ocorre quando o cliente aborta a requisicao HTTP.
 - `/api/estoque-matriz` nao possui timeout explicito de 60 segundos nem cancelamento propagado.

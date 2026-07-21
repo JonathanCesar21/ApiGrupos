@@ -25,6 +25,11 @@ Accept: application/json
 
 ###
 
+GET {{ApiGrupos_HostAddress}}/api/ControleVolumes
+Accept: application/json
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/consulta-entradas?dataInicio=2022-01-01&dataFim=2022-01-31
 Accept: application/json
 
