@@ -5,6 +5,10 @@ using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 builder.Services.AddSingleton(_ =>
     new ConnectionStringProvider(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddSingleton<RequestLogWriter>();

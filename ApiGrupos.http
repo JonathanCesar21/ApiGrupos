@@ -47,3 +47,15 @@ Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
+
+GET {{ApiGrupos_HostAddress}}/api/recebimentos/crediarista/titulos?dataInicio=2026-08-01&dataFim=2026-08-20&somenteEmAberto=true
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
+GET {{ApiGrupos_HostAddress}}/api/recebimentos/crediarista/clientes-resumo?dataInicio=2026-08-01&dataFim=2026-08-20&somenteEmAberto=true
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###

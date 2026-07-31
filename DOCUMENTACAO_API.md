@@ -553,6 +553,88 @@ GET /api/consulta-entradas-agregado?dataInicio=2024-01-01&dataFim=2024-01-31
 
 Antes da agregacao, a consulta aplica a mesma deduplicacao por `ROW_NUMBER()` usada no endpoint detalhado de entradas. Registros com soma de quantidade igual a zero sao removidos.
 
+## Recebimentos
+
+### `GET /api/recebimentos/crediarista/titulos`
+
+Retorna os titulos de `CReceber` no periodo de vencimento informado, enriquecidos com dados basicos do cliente, cidade e forma de pagamento.
+
+Este endpoint foi pensado para a cobranca de crediaristas/central. Por isso, ele nao retorna titulos com mais de 70 dias de atraso; esses devem ser tratados no fluxo CSC.
+
+Parametros:
+
+| Parametro | Obrigatorio | Descricao |
+|---|---|---|
+| `dataInicio` | sim | Primeiro vencimento incluido, no formato `YYYY-MM-DD`. |
+| `dataFim` | sim | Ultimo vencimento incluido, no formato `YYYY-MM-DD`. |
+| `loja` | nao | Filtra por `CReceber.Empresa`. |
+| `somenteEmAberto` | nao | Padrao `true`. Quando `true`, aplica `c.Pago IS NULL`. |
+
+O periodo maximo permitido e de 120 dias por requisicao.
+
+Exemplo:
+
+```http
+GET /api/recebimentos/crediarista/titulos?dataInicio=2026-08-01&dataFim=2026-08-20&somenteEmAberto=true
+```
+
+Campos principais:
+
+| Campo | Descricao |
+|---|---|
+| `dtVencimento` | Data de vencimento do titulo. |
+| `valor` | Valor da parcela. |
+| `codCli` | Codigo do cliente. |
+| `nomeCliente` | Nome do cliente. |
+| `bairro` | Bairro do cliente. |
+| `nomeCidade` | Cidade do cliente. |
+| `dtNascimento` | Data de nascimento. |
+| `sexo` | Homem, Mulher ou Nao informado. |
+| `codGrupo` | Grupo do cliente. |
+| `limite` | Limite cadastrado. |
+| `renda` | Renda cadastrada. |
+| `idade` | Idade cadastrada. |
+| `lojaCadastro` | Loja do cadastro do cliente. |
+| `fone` | Telefone principal. |
+| `foneReferencia1` | Telefone de referencia 1. |
+| `foneReferencia2` | Telefone de referencia 2. |
+| `pedido` | Pedido vinculado. Retornado como texto, pois alguns pedidos podem ser alfanumericos. |
+| `dtPedido` | Data do pedido. |
+| `parcela` | Numero da parcela. |
+| `nParcelas` | Quantidade total de parcelas. |
+| `loja` | Loja/empresa do titulo. |
+| `pago` | Data/valor do campo `Pago`, quando preenchido. |
+| `dtBaixa` | Data de baixa. |
+| `codFormaPgt` | Codigo da forma de pagamento. |
+| `formaPagamento` | Descricao da forma de pagamento. |
+
+O CRM deve calcular localmente informacoes visuais como dias para vencer, dias em atraso, status `a vencer`, `vence hoje`, `em atraso` e faixas de atraso.
+
+### `GET /api/recebimentos/crediarista/clientes-resumo`
+
+Retorna uma linha por cliente no periodo informado, consolidando os titulos retornaveis pela mesma regra do endpoint de titulos.
+
+Exemplo:
+
+```http
+GET /api/recebimentos/crediarista/clientes-resumo?dataInicio=2026-08-01&dataFim=2026-08-20&somenteEmAberto=true
+```
+
+Campos principais:
+
+| Campo | Descricao |
+|---|---|
+| `codCli` | Codigo do cliente. |
+| `nomeCliente` | Nome do cliente. |
+| `qtdeTitulos` | Quantidade de titulos no periodo. |
+| `valorTotal` | Soma dos valores dos titulos. |
+| `limite` | Limite cadastrado do cliente. |
+| `limiteDisponivel` | `limite - valorTotal`. |
+| `primeiroVencimento` | Menor vencimento encontrado. |
+| `ultimoVencimento` | Maior vencimento encontrado. |
+| `ultimaCompra` | Maior `DtPedido` encontrada. |
+| `lojas` | Loja principal encontrada no periodo. |
+
 ## Observacoes tecnicas
 
 - `/api/consulta-vendas`, `/api/consulta-entradas`, `/api/estoque-lojas` e `/api/ControleVolumes` carregam todos os registros retornados em memoria antes de responder.
