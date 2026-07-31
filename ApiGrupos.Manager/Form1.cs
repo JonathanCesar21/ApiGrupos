@@ -6,6 +6,8 @@ namespace ApiGrupos.Manager;
 
 public partial class Form1 : Form
 {
+    private const string LocalPanelHeaderName = "X-ApiGrupos-Local-Panel";
+    private const string LocalPanelHeaderValue = "1";
     private readonly HttpClient _httpClient = new();
     private readonly System.Windows.Forms.Timer _refreshTimer = new();
     private readonly object _tunnelLogLock = new();
@@ -118,6 +120,13 @@ public partial class Form1 : Form
         return new Uri($"{baseUrl}{relativePath}");
     }
 
+    private HttpRequestMessage CreateLocalPanelRequest(HttpMethod method, string relativePath)
+    {
+        var request = new HttpRequestMessage(method, BuildUri(relativePath));
+        request.Headers.TryAddWithoutValidation(LocalPanelHeaderName, LocalPanelHeaderValue);
+        return request;
+    }
+
     private static string GetLogsDirectory()
     {
         return Path.Combine(
@@ -165,7 +174,8 @@ public partial class Form1 : Form
     {
         try
         {
-            var response = await _httpClient.GetAsync(BuildUri("/api/configuracao/status"));
+            using var request = CreateLocalPanelRequest(HttpMethod.Get, "/api/configuracao/status");
+            var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
                 lblConfigStatus.Text = $"Status configuracao: erro HTTP {(int)response.StatusCode}";
@@ -511,7 +521,9 @@ public partial class Form1 : Form
 
             var payload = JsonSerializer.Serialize(new { usuario, senha });
             using var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(BuildUri("/api/configuracao/credenciais"), content);
+            using var request = CreateLocalPanelRequest(HttpMethod.Post, "/api/configuracao/credenciais");
+            request.Content = content;
+            var response = await _httpClient.SendAsync(request);
             var body = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)

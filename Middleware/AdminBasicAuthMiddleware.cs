@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using ApiGrupos.Services;
@@ -28,6 +29,12 @@ public class AdminBasicAuthMiddleware
             return;
         }
 
+        if (IsLocalPanelConfigurationRequest(context))
+        {
+            await _next(context);
+            return;
+        }
+
         if (!security.IsAdminConfigured)
         {
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
@@ -52,6 +59,40 @@ public class AdminBasicAuthMiddleware
         return path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/configuracao", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/api/configuracao", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsLocalPanelConfigurationRequest(HttpContext context)
+    {
+        if (!context.Request.Path.StartsWithSegments("/api/configuracao", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (!context.Request.Headers.TryGetValue("X-ApiGrupos-Local-Panel", out var panelHeader) ||
+            !string.Equals(panelHeader.ToString(), "1", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var remoteIp = context.Connection.RemoteIpAddress;
+        if (remoteIp is null || !IPAddress.IsLoopback(remoteIp))
+        {
+            return false;
+        }
+
+        var host = context.Request.Host.Host;
+        if (!string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(host, "127.0.0.1", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(host, "::1", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return !context.Request.Headers.ContainsKey("CF-Connecting-IP") &&
+            !context.Request.Headers.ContainsKey("CF-Ray") &&
+            !context.Request.Headers.ContainsKey("Forwarded") &&
+            !context.Request.Headers.ContainsKey("X-Forwarded-For") &&
+            !context.Request.Headers.ContainsKey("X-Real-IP");
     }
 
     private static bool TryGetBasicCredentials(
