@@ -1,6 +1,18 @@
 @ApiGrupos_HostAddress = http://localhost:5122
 @ApiGrupos_ApiKey = COLOCAR_API_KEY_AQUI
 
+GET {{ApiGrupos_HostAddress}}/api/clientes?busca=maria&loja=10&page=1&pageSize=50
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
+GET {{ApiGrupos_HostAddress}}/api/clientes/12345
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/consulta-vendas?dataInicio=2022-01-01&dataFim=2022-01-31
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}

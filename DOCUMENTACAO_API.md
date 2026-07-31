@@ -128,6 +128,66 @@ Informa se as credenciais do banco estao configuradas.
 |---|---|---|
 | `configurado` | booleano | `true` quando a API possui credenciais em memoria. |
 
+## Clientes
+
+### `GET /api/clientes`
+
+Lista clientes de forma paginada para uso no CRM. A resposta sempre usa paginacao, mesmo quando `page` e `pageSize` nao sao informados.
+
+Parametros:
+
+| Parametro | Obrigatorio | Descricao |
+|---|---|---|
+| `busca` | nao | Busca por nome, codigo, telefone, telefone de referencia, bairro ou cidade. |
+| `loja` | nao | Filtra pela loja cadastrada no cliente (`Clientes.Loja`). |
+| `page` | nao | Pagina atual. Padrao `1`. |
+| `pageSize` | nao | Quantidade de clientes por pagina. Padrao `100`. |
+
+Exemplo:
+
+```http
+GET /api/clientes?busca=maria&loja=10&page=1&pageSize=50
+```
+
+Resposta:
+
+| Campo | Descricao |
+|---|---|
+| `page` | Pagina atual. |
+| `pageSize` | Quantidade maxima de itens da pagina. |
+| `total` | Total de clientes encontrados. |
+| `totalPages` | Total de paginas. |
+| `items` | Lista de clientes. |
+
+Campos de cliente:
+
+| Campo | Descricao |
+|---|---|
+| `codigo` | Codigo do cliente. |
+| `nome` | Nome do cliente. |
+| `bairro` | Bairro do cliente. |
+| `nomeCidade` | Cidade do cliente. |
+| `dtNascimento` | Data de nascimento. |
+| `sexo` | Homem, Mulher ou Nao informado. |
+| `codGrupo` | Grupo do cliente. |
+| `limite` | Limite cadastrado. |
+| `renda` | Renda cadastrada. |
+| `idade` | Idade cadastrada. |
+| `loja` | Loja cadastrada no cliente. |
+| `fone` | Telefone principal. |
+| `foneReferencia1` | Telefone de referencia 1. |
+| `foneReferencia2` | Telefone de referencia 2. |
+
+### `GET /api/clientes/{codigo}`
+
+Retorna a ficha cadastral de um cliente pelo codigo.
+
+Exemplo:
+
+```http
+GET /api/clientes/12345
+```
+
 ## Cadastros
 
 Todos os endpoints desta secao aceitam paginacao opcional.
