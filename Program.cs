@@ -1,4 +1,6 @@
+using ApiGrupos.Middleware;
 using ApiGrupos.Services;
+using Microsoft.OpenApi.Models;
 using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,10 +8,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton(_ =>
     new ConnectionStringProvider(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddSingleton<RequestLogWriter>();
+builder.Services.Configure<ApiSecurityOptions>(
+    builder.Configuration.GetSection(ApiSecurityOptions.SectionName));
+builder.Services.AddSingleton<ApiSecurityService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Description = "Informe a API key no header X-API-Key.",
+        In = ParameterLocation.Header,
+        Name = "X-API-Key",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "ApiKey"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // CORS liberado para desenvolvimento (ajuste para producao conforme necessario).
 builder.Services.AddCors(options =>
@@ -24,9 +53,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("DevCors");
@@ -48,6 +74,10 @@ app.Use(async (context, next) =>
 
     await logger.WriteAsync(line);
 });
+app.UseMiddleware<AdminBasicAuthMiddleware>();
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 

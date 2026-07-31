@@ -3,10 +3,50 @@
 ## Visao geral
 
 - URL local padrao: `http://localhost:5122`
-- Swagger: `/swagger`
+- Swagger: `/swagger` protegido por usuario/senha admin.
 - Formato das respostas: JSON, exceto a pagina `/configuracao`.
-- A API nao possui autenticacao HTTP.
+- Os endpoints comuns da API exigem o header `X-API-Key`.
 - As credenciais do SQL Server sao configuradas e mantidas apenas em memoria.
+
+## Seguranca
+
+### API key
+
+Todos os endpoints em `/api/*`, exceto `/api/configuracao/*`, exigem uma API key no header:
+
+```http
+X-API-Key: SUA_API_KEY
+```
+
+A aplicacao cliente deve guardar a chave em variavel de ambiente ou arquivo local nao versionado. O servidor deve guardar apenas o SHA-256 da chave em `ApiSecurity:ApiKeyHash`.
+
+Configuracao por variaveis de ambiente:
+
+```powershell
+$env:ApiSecurity__ApiKeyHash = "SHA256_DA_API_KEY"
+```
+
+### Acesso admin
+
+As rotas `/swagger`, `/swagger/*`, `/configuracao` e `/api/configuracao/*` exigem Basic Auth de admin.
+
+Configuracao por variaveis de ambiente:
+
+```powershell
+$env:ApiSecurity__AdminUsername = "admin"
+$env:ApiSecurity__AdminPasswordHash = "SHA256_DA_SENHA_ADMIN"
+```
+
+Para calcular o SHA-256 de um segredo no PowerShell:
+
+```powershell
+$segredo = "troque-este-valor"
+$sha256 = [System.Security.Cryptography.SHA256]::Create()
+$bytes = $sha256.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($segredo))
+(-join ($bytes | ForEach-Object { $_.ToString("x2") }))
+```
+
+Nao envie a API key por query string e nao salve chaves reais em arquivos versionados.
 
 ## Regras comuns
 
@@ -52,8 +92,9 @@ Os endpoints agregados aceitam consultas a partir de `2024-01-01`; datas iniciai
 |---|---|
 | `200` | Consulta executada com sucesso. |
 | `400` | Parametros invalidos ou ausentes. |
+| `401` | Credenciais admin ausentes/invalidas ou API key ausente/invalida. |
 | `500` | Erro ao executar ou processar a consulta. |
-| `503` | Credenciais do banco ainda nao configuradas. |
+| `503` | Credenciais do banco ou seguranca da API ainda nao configuradas. |
 | `504` | Consulta de vendas, entradas, estoque das lojas ou controle de volumes excedeu 60 segundos. |
 
 ## Configuracao
