@@ -627,8 +627,10 @@ Parametros:
 |---|---|---|
 | `dataInicio` | sim | Primeiro vencimento incluido, no formato `YYYY-MM-DD`. |
 | `dataFim` | sim | Ultimo vencimento incluido, no formato `YYYY-MM-DD`. |
+| `tipoData` | nao | Campo de data usado no filtro. Padrao `vencimento`. Aceita `vencimento`, `baixa`, `dtbaixa`, `pagamento`, `quitacao` ou `pedido`. Para quitacao de carne, use `tipoData=baixa`. |
 | `loja` | nao | Filtra por `CReceber.Empresa`. |
 | `somenteEmAberto` | nao | Padrao `true`. Quando `true`, aplica `c.Pago IS NULL`. |
+| `somentePagos` | nao | Padrao `false`. Quando `true`, aplica `c.Pago IS NOT NULL` e tem prioridade sobre `somenteEmAberto`. |
 
 O periodo maximo permitido e de 120 dias por requisicao.
 
@@ -636,6 +638,12 @@ Exemplo:
 
 ```http
 GET /api/recebimentos/crediarista/titulos?dataInicio=2026-08-01&dataFim=2026-08-20&somenteEmAberto=true
+```
+
+Exemplo para quitacoes/baixas no periodo:
+
+```http
+GET /api/recebimentos/crediarista/titulos?dataInicio=2026-07-01&dataFim=2026-07-31&tipoData=baixa&somentePagos=true
 ```
 
 Campos principais:
@@ -663,7 +671,7 @@ Campos principais:
 | `parcela` | Numero da parcela. |
 | `nParcelas` | Quantidade total de parcelas. |
 | `loja` | Loja/empresa do titulo. |
-| `pago` | Data/valor do campo `Pago`, quando preenchido. |
+| `pago` | Status do campo `Pago`, retornado como booleano quando preenchido. |
 | `dtBaixa` | Data de baixa. |
 | `codFormaPgt` | Codigo da forma de pagamento. |
 | `formaPagamento` | Descricao da forma de pagamento. |
@@ -674,10 +682,18 @@ O CRM deve calcular localmente informacoes visuais como dias para vencer, dias e
 
 Retorna uma linha por cliente no periodo informado, consolidando os titulos retornaveis pela mesma regra do endpoint de titulos.
 
+Aceita os mesmos filtros de data e pagamento do endpoint de titulos, incluindo `tipoData=baixa` e `somentePagos=true` para campanhas de clientes que quitaram/baixaram carne no periodo.
+
 Exemplo:
 
 ```http
 GET /api/recebimentos/crediarista/clientes-resumo?dataInicio=2026-08-01&dataFim=2026-08-20&somenteEmAberto=true
+```
+
+Exemplo para resumo de quitacoes/baixas no periodo:
+
+```http
+GET /api/recebimentos/crediarista/clientes-resumo?dataInicio=2026-07-01&dataFim=2026-07-31&tipoData=baixa&somentePagos=true
 ```
 
 Campos principais:
@@ -694,6 +710,8 @@ Campos principais:
 | `ultimoVencimento` | Maior vencimento encontrado. |
 | `ultimaCompra` | Maior `DtPedido` encontrada. |
 | `lojas` | Loja principal encontrada no periodo. |
+
+Para campanha de quitacao de carne, o CRM deve buscar os clientes com `tipoData=baixa&somentePagos=true`, depois calcular separadamente se o cliente ainda possui parcelas em aberto antes de aplicar filtros como "sem parcelas em aberto" e limite disponivel.
 
 ### `GET /api/contasreceberterceiros/titulos`
 

@@ -68,7 +68,7 @@ public class RecebimentoCrediaristaTitulo
     public int? Loja { get; set; }
 
     [JsonPropertyName("pago")]
-    public DateTime? Pago { get; set; }
+    public bool? Pago { get; set; }
 
     [JsonPropertyName("dtBaixa")]
     public DateTime? DtBaixa { get; set; }

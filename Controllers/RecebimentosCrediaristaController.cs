@@ -24,10 +24,12 @@ public class RecebimentosCrediaristaController : ControllerBase
         [FromQuery] DateTime? dataInicio,
         [FromQuery] DateTime? dataFim,
         [FromQuery] int? loja,
+        [FromQuery] string? tipoData = null,
         [FromQuery] bool somenteEmAberto = true,
+        [FromQuery] bool somentePagos = false,
         CancellationToken cancellationToken = default)
     {
-        if (!TryResolvePeriodo(dataInicio, dataFim, out var inicio, out var fimExclusivo, out var error))
+        if (!TryResolvePeriodo(dataInicio, dataFim, tipoData, out var filtros, out var error))
         {
             return BadRequest(error);
         }
@@ -84,10 +86,10 @@ public class RecebimentosCrediaristaController : ControllerBase
                     ON c.CodCli = cli.Codigo
                 INNER JOIN Cidades cid
                     ON cli.Cidade = cid.Seq
-                WHERE c.Vencimento >= @DataInicio
-                  AND c.Vencimento < @DataFimExclusivo
+                WHERE {filtros.DateColumn} >= @DataInicio
+                  AND {filtros.DateColumn} < @DataFimExclusivo
                   AND DATEDIFF(DAY, c.Vencimento, CAST(GETDATE() AS date)) <= 70
-                  {GetSomenteEmAbertoFilter(somenteEmAberto)}
+                  {GetPagamentoFilter(somenteEmAberto, somentePagos)}
                   {GetLojaFilter(loja)}
                 ORDER BY c.Vencimento, c.Empresa, cli.nome, c.Pedido, c.Parcela
                 """;
@@ -97,7 +99,7 @@ public class RecebimentosCrediaristaController : ControllerBase
                 CommandTimeout = CommandTimeoutSeconds
             };
 
-            AddCommonParameters(command, inicio, fimExclusivo, loja);
+            AddCommonParameters(command, filtros, loja);
 
             await using var reader = await command.ExecuteReaderAsync(
                 CommandBehavior.SequentialAccess,
@@ -136,10 +138,12 @@ public class RecebimentosCrediaristaController : ControllerBase
         [FromQuery] DateTime? dataInicio,
         [FromQuery] DateTime? dataFim,
         [FromQuery] int? loja,
+        [FromQuery] string? tipoData = null,
         [FromQuery] bool somenteEmAberto = true,
+        [FromQuery] bool somentePagos = false,
         CancellationToken cancellationToken = default)
     {
-        if (!TryResolvePeriodo(dataInicio, dataFim, out var inicio, out var fimExclusivo, out var error))
+        if (!TryResolvePeriodo(dataInicio, dataFim, tipoData, out var filtros, out var error))
         {
             return BadRequest(error);
         }
@@ -182,10 +186,10 @@ public class RecebimentosCrediaristaController : ControllerBase
                     ON c.CodCli = cli.Codigo
                 INNER JOIN Cidades cid
                     ON cli.Cidade = cid.Seq
-                WHERE c.Vencimento >= @DataInicio
-                  AND c.Vencimento < @DataFimExclusivo
+                WHERE {filtros.DateColumn} >= @DataInicio
+                  AND {filtros.DateColumn} < @DataFimExclusivo
                   AND DATEDIFF(DAY, c.Vencimento, CAST(GETDATE() AS date)) <= 70
-                  {GetSomenteEmAbertoFilter(somenteEmAberto)}
+                  {GetPagamentoFilter(somenteEmAberto, somentePagos)}
                   {GetLojaFilter(loja)}
                 GROUP BY
                     c.CodCli,
@@ -209,7 +213,7 @@ public class RecebimentosCrediaristaController : ControllerBase
                 CommandTimeout = CommandTimeoutSeconds
             };
 
-            AddCommonParameters(command, inicio, fimExclusivo, loja);
+            AddCommonParameters(command, filtros, loja);
 
             await using var reader = await command.ExecuteReaderAsync(
                 CommandBehavior.SequentialAccess,
@@ -246,13 +250,19 @@ public class RecebimentosCrediaristaController : ControllerBase
     private static bool TryResolvePeriodo(
         DateTime? dataInicio,
         DateTime? dataFim,
-        out DateTime inicio,
-        out DateTime fimExclusivo,
+        string? tipoData,
+        out RecebimentosCrediaristaFiltros filtros,
         out string error)
     {
-        inicio = default;
-        fimExclusivo = default;
+        filtros = new RecebimentosCrediaristaFiltros();
         error = string.Empty;
+
+        if (!TryResolveDataColumn(tipoData, out var dateColumn, out error))
+        {
+            return false;
+        }
+
+        filtros.DateColumn = dateColumn;
 
         if (!dataInicio.HasValue || !dataFim.HasValue)
         {
@@ -260,10 +270,10 @@ public class RecebimentosCrediaristaController : ControllerBase
             return false;
         }
 
-        inicio = dataInicio.Value.Date;
+        filtros.Inicio = dataInicio.Value.Date;
         var fim = dataFim.Value.Date;
 
-        if (fim < inicio)
+        if (fim < filtros.Inicio)
         {
             error = "O parametro 'dataFim' deve ser maior ou igual a 'dataInicio'.";
             return false;
@@ -275,19 +285,51 @@ public class RecebimentosCrediaristaController : ControllerBase
             return false;
         }
 
-        var periodoDias = (fim - inicio).TotalDays + 1;
+        var periodoDias = (fim - filtros.Inicio).TotalDays + 1;
         if (periodoDias > MaxPeriodoDias)
         {
             error = $"O periodo maximo permitido para recebimentos crediarista e de {MaxPeriodoDias} dias.";
             return false;
         }
 
-        fimExclusivo = fim.AddDays(1);
+        filtros.FimExclusivo = fim.AddDays(1);
         return true;
     }
 
-    private static string GetSomenteEmAbertoFilter(bool somenteEmAberto)
+    private static bool TryResolveDataColumn(string? tipoData, out string dateColumn, out string error)
     {
+        var key = string.IsNullOrWhiteSpace(tipoData)
+            ? "vencimento"
+            : tipoData.Trim().ToLowerInvariant();
+
+        dateColumn = key switch
+        {
+            "vencimento" => "c.Vencimento",
+            "baixa" => "c.Baixa",
+            "dtbaixa" => "c.Baixa",
+            "pagamento" => "c.Baixa",
+            "quitacao" => "c.Baixa",
+            "pedido" => "c.DtPedido",
+            _ => string.Empty
+        };
+
+        if (!string.IsNullOrEmpty(dateColumn))
+        {
+            error = string.Empty;
+            return true;
+        }
+
+        error = "O parametro 'tipoData' deve ser um destes valores: vencimento, baixa, dtbaixa, pagamento, quitacao ou pedido.";
+        return false;
+    }
+
+    private static string GetPagamentoFilter(bool somenteEmAberto, bool somentePagos)
+    {
+        if (somentePagos)
+        {
+            return "AND c.Pago IS NOT NULL";
+        }
+
         return somenteEmAberto ? "AND c.Pago IS NULL" : string.Empty;
     }
 
@@ -296,10 +338,10 @@ public class RecebimentosCrediaristaController : ControllerBase
         return loja.HasValue ? "AND c.Empresa = @Loja" : string.Empty;
     }
 
-    private static void AddCommonParameters(SqlCommand command, DateTime inicio, DateTime fimExclusivo, int? loja)
+    private static void AddCommonParameters(SqlCommand command, RecebimentosCrediaristaFiltros filtros, int? loja)
     {
-        command.Parameters.Add("@DataInicio", SqlDbType.DateTime).Value = inicio;
-        command.Parameters.Add("@DataFimExclusivo", SqlDbType.DateTime).Value = fimExclusivo;
+        command.Parameters.Add("@DataInicio", SqlDbType.DateTime).Value = filtros.Inicio;
+        command.Parameters.Add("@DataFimExclusivo", SqlDbType.DateTime).Value = filtros.FimExclusivo;
 
         if (loja.HasValue)
         {
@@ -332,7 +374,7 @@ public class RecebimentosCrediaristaController : ControllerBase
             Parcela = ReadInt32(reader, 18),
             NParcelas = ReadInt32(reader, 19),
             Loja = ReadInt32(reader, 20),
-            Pago = ReadDateTime(reader, 21),
+            Pago = ReadBoolean(reader, 21),
             DtBaixa = ReadDateTime(reader, 22),
             CodFormaPgt = ReadInt32(reader, 23),
             FormaPagamento = ReadString(reader, 24)
@@ -378,8 +420,38 @@ public class RecebimentosCrediaristaController : ControllerBase
         return reader.IsDBNull(ordinal) ? null : Convert.ToDecimal(reader.GetValue(ordinal));
     }
 
+    private static bool? ReadBoolean(SqlDataReader reader, int ordinal)
+    {
+        if (reader.IsDBNull(ordinal))
+        {
+            return null;
+        }
+
+        var value = reader.GetValue(ordinal);
+        return value switch
+        {
+            bool booleanValue => booleanValue,
+            byte byteValue => byteValue != 0,
+            short shortValue => shortValue != 0,
+            int intValue => intValue != 0,
+            long longValue => longValue != 0,
+            string textValue when bool.TryParse(textValue, out var parsed) => parsed,
+            string textValue when int.TryParse(textValue, out var parsed) => parsed != 0,
+            _ => Convert.ToBoolean(value)
+        };
+    }
+
     private static DateTime? ReadDateTime(SqlDataReader reader, int ordinal)
     {
         return reader.IsDBNull(ordinal) ? null : Convert.ToDateTime(reader.GetValue(ordinal));
+    }
+
+    private sealed class RecebimentosCrediaristaFiltros
+    {
+        public DateTime Inicio { get; set; }
+
+        public DateTime FimExclusivo { get; set; }
+
+        public string DateColumn { get; set; } = string.Empty;
     }
 }
