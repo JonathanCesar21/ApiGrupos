@@ -71,3 +71,21 @@ Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
+
+GET {{ApiGrupos_HostAddress}}/api/contasreceberterceiros/titulos?codCli=479410&somenteEmAberto=true
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
+GET {{ApiGrupos_HostAddress}}/api/contasreceberterceiros/clientes-resumo?codCli=479410&somenteEmAberto=true
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
+GET {{ApiGrupos_HostAddress}}/api/contasreceberterceiros/titulos?dataInicio=2026-06-01&dataFim=2026-06-30&tipoData=vencimento&loja=10&codCobranca=401&somenteEmAberto=true
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###

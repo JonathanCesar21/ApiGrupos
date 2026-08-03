@@ -695,6 +695,109 @@ Campos principais:
 | `ultimaCompra` | Maior `DtPedido` encontrada. |
 | `lojas` | Loja principal encontrada no periodo. |
 
+### `GET /api/contasreceberterceiros/titulos`
+
+Retorna os titulos da tabela `CReceberCob`, usada para cobranca externa/terceiros, como CSC e outras empresas de cobranca. O valor retornado e o valor original do titulo, sem calculo de juros.
+
+Tambem existe o alias:
+
+```http
+GET /api/contas-receber-terceiros/titulos
+```
+
+Parametros:
+
+| Parametro | Obrigatorio | Descricao |
+|---|---|---|
+| `dataInicio` | condicional | Primeiro dia incluido no filtro de data. Obrigatorio quando `codCli` nao for informado. |
+| `dataFim` | condicional | Ultimo dia incluido no filtro de data. Obrigatorio quando `codCli` nao for informado. |
+| `tipoData` | nao | Campo de data usado no filtro. Padrao `vencimento`. Aceita `vencimento`, `envio`, `retorno`, `pedido`, `cadastro`, `dtcadastro`, `cadastro-terceiros`, `data-limite`, `limite`, `devolucao` ou `retirada`. |
+| `codCli` | nao | Filtra um cliente especifico. Quando informado, permite consultar sem periodo. |
+| `loja` | nao | Filtra por `CReceberCob.Empresa`. |
+| `codCobranca` | nao | Filtra por `CReceberCob.CodCobranca`, identificando a cobranca externa/terceiro. |
+| `status` | nao | Filtra por `CReceberCob.Status`. |
+| `somenteEmAberto` | nao | Padrao `true`. Quando `true`, aplica `CReceberCob.Recebimento IS NULL`. |
+
+O periodo maximo permitido e de 730 dias por requisicao. Para consultar todas as parcelas de um cliente especifico, use `codCli` sem periodo.
+
+Exemplos:
+
+```http
+GET /api/contasreceberterceiros/titulos?codCli=479410&somenteEmAberto=true
+```
+
+```http
+GET /api/contasreceberterceiros/titulos?dataInicio=2026-06-01&dataFim=2026-06-30&tipoData=vencimento&loja=10&codCobranca=401&somenteEmAberto=true
+```
+
+Campos principais:
+
+| Campo | Descricao |
+|---|---|
+| `codCli` | Codigo do cliente. |
+| `nomeCliente` | Nome do cliente, quando encontrado no cadastro. |
+| `cpf` | CPF registrado em `CReceberCob`. |
+| `fone` | Telefone registrado em `CReceberCob`. |
+| `foneCadastro` | Telefone principal do cadastro do cliente. |
+| `dtVencimento` | Vencimento da parcela. |
+| `valor` | Valor original da parcela, sem juros. |
+| `pedido` | Pedido vinculado. Retornado como texto. |
+| `parcela` | Numero da parcela. |
+| `nParcelas` | Quantidade total de parcelas. |
+| `loja` | Loja/empresa do titulo (`CReceberCob.Empresa`). |
+| `codCobranca` | Codigo da cobranca externa/terceiro. |
+| `dtEnvio` | Data de envio para cobranca externa. |
+| `dtRetorno` | Data de retorno, quando houver. |
+| `status` | Status registrado em `CReceberCob`. |
+| `recebimento` | Data de recebimento, quando houver. |
+| `seq` | Sequencial do registro em `CReceberCob`. |
+| `cReceber` | Sequencial/vinculo com a origem do titulo. |
+| `observacao` | Observacao da origem, por exemplo venda a carne. |
+
+### `GET /api/contasreceberterceiros/clientes-resumo`
+
+Retorna uma linha por cliente e por `codCobranca`, consolidando os titulos da cobranca externa/terceiros.
+
+Tambem existe o alias:
+
+```http
+GET /api/contas-receber-terceiros/clientes-resumo
+```
+
+Aceita os mesmos parametros do endpoint de titulos.
+
+Exemplo:
+
+```http
+GET /api/contasreceberterceiros/clientes-resumo?codCli=479410&somenteEmAberto=true
+```
+
+Campos principais:
+
+| Campo | Descricao |
+|---|---|
+| `codCli` | Codigo do cliente. |
+| `nomeCliente` | Nome do cliente. |
+| `cpf` | CPF encontrado em `CReceberCob`. |
+| `fone` | Telefone do cadastro ou telefone encontrado em `CReceberCob`. |
+| `codCobranca` | Codigo da cobranca externa/terceiro. |
+| `lojaPrincipal` | Menor loja encontrada nos titulos do grupo. |
+| `qtdeLojas` | Quantidade de lojas diferentes nos titulos. |
+| `qtdeTitulos` | Quantidade de parcelas/titulos. |
+| `qtdePedidos` | Quantidade de pedidos diferentes. |
+| `valorTotalSemJuros` | Soma de `CReceberCob.Valor`, sem juros. |
+| `limite` | Limite cadastrado do cliente. |
+| `limiteDisponivel` | `limite - valorTotalSemJuros`, considerando somente os titulos retornados por este endpoint. |
+| `primeiroVencimento` | Menor vencimento encontrado. |
+| `ultimoVencimento` | Maior vencimento encontrado. |
+| `primeiroEnvio` | Menor data de envio para cobranca externa. |
+| `ultimoEnvio` | Maior data de envio para cobranca externa. |
+| `ultimaCompra` | Maior `DtPedido` encontrada. |
+| `qtdeComRecebimento` | Quantidade de titulos com `Recebimento` preenchido. |
+| `qtdeComRetorno` | Quantidade de titulos com `DtRetorno` preenchido. |
+
+Para limite disponivel global do CRM, some os abertos de `CReceber` e `CReceberCob` antes de subtrair do limite do cliente.
+
 ## Observacoes tecnicas
 
 - `/api/consulta-vendas`, `/api/consulta-entradas`, `/api/estoque-lojas` e `/api/ControleVolumes` carregam todos os registros retornados em memoria antes de responder.
