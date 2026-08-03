@@ -84,6 +84,12 @@ X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
 
+GET {{ApiGrupos_HostAddress}}/api/recebimentos/crediarista/titulos?dataInicio=2026-07-01&dataFim=2026-07-31&tipoData=baixa&somentePagos=true&codCli=2656405
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/contasreceberterceiros/titulos?codCli=479410&somenteEmAberto=true
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}

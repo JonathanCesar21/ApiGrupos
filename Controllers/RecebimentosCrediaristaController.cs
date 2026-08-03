@@ -24,6 +24,7 @@ public class RecebimentosCrediaristaController : ControllerBase
         [FromQuery] DateTime? dataInicio,
         [FromQuery] DateTime? dataFim,
         [FromQuery] int? loja,
+        [FromQuery] int? codCli,
         [FromQuery] string? tipoData = null,
         [FromQuery] bool somenteEmAberto = true,
         [FromQuery] bool somentePagos = false,
@@ -91,6 +92,7 @@ public class RecebimentosCrediaristaController : ControllerBase
                   AND DATEDIFF(DAY, c.Vencimento, CAST(GETDATE() AS date)) <= 70
                   {GetPagamentoFilter(somenteEmAberto, somentePagos)}
                   {GetLojaFilter(loja)}
+                  {GetClienteFilter(codCli)}
                 ORDER BY c.Vencimento, c.Empresa, cli.nome, c.Pedido, c.Parcela
                 """;
 
@@ -99,7 +101,7 @@ public class RecebimentosCrediaristaController : ControllerBase
                 CommandTimeout = CommandTimeoutSeconds
             };
 
-            AddCommonParameters(command, filtros, loja);
+            AddCommonParameters(command, filtros, loja, codCli);
 
             await using var reader = await command.ExecuteReaderAsync(
                 CommandBehavior.SequentialAccess,
@@ -138,6 +140,7 @@ public class RecebimentosCrediaristaController : ControllerBase
         [FromQuery] DateTime? dataInicio,
         [FromQuery] DateTime? dataFim,
         [FromQuery] int? loja,
+        [FromQuery] int? codCli,
         [FromQuery] string? tipoData = null,
         [FromQuery] bool somenteEmAberto = true,
         [FromQuery] bool somentePagos = false,
@@ -191,6 +194,7 @@ public class RecebimentosCrediaristaController : ControllerBase
                   AND DATEDIFF(DAY, c.Vencimento, CAST(GETDATE() AS date)) <= 70
                   {GetPagamentoFilter(somenteEmAberto, somentePagos)}
                   {GetLojaFilter(loja)}
+                  {GetClienteFilter(codCli)}
                 GROUP BY
                     c.CodCli,
                     cli.nome,
@@ -213,7 +217,7 @@ public class RecebimentosCrediaristaController : ControllerBase
                 CommandTimeout = CommandTimeoutSeconds
             };
 
-            AddCommonParameters(command, filtros, loja);
+            AddCommonParameters(command, filtros, loja, codCli);
 
             await using var reader = await command.ExecuteReaderAsync(
                 CommandBehavior.SequentialAccess,
@@ -338,7 +342,16 @@ public class RecebimentosCrediaristaController : ControllerBase
         return loja.HasValue ? "AND c.Empresa = @Loja" : string.Empty;
     }
 
-    private static void AddCommonParameters(SqlCommand command, RecebimentosCrediaristaFiltros filtros, int? loja)
+    private static string GetClienteFilter(int? codCli)
+    {
+        return codCli.HasValue ? "AND c.CodCli = @CodCli" : string.Empty;
+    }
+
+    private static void AddCommonParameters(
+        SqlCommand command,
+        RecebimentosCrediaristaFiltros filtros,
+        int? loja,
+        int? codCli)
     {
         command.Parameters.Add("@DataInicio", SqlDbType.DateTime).Value = filtros.Inicio;
         command.Parameters.Add("@DataFimExclusivo", SqlDbType.DateTime).Value = filtros.FimExclusivo;
@@ -346,6 +359,11 @@ public class RecebimentosCrediaristaController : ControllerBase
         if (loja.HasValue)
         {
             command.Parameters.Add("@Loja", SqlDbType.Int).Value = loja.Value;
+        }
+
+        if (codCli.HasValue)
+        {
+            command.Parameters.Add("@CodCli", SqlDbType.Int).Value = codCli.Value;
         }
     }
 

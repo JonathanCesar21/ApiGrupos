@@ -629,6 +629,7 @@ Parametros:
 | `dataFim` | sim | Ultimo vencimento incluido, no formato `YYYY-MM-DD`. |
 | `tipoData` | nao | Campo de data usado no filtro. Padrao `vencimento`. Aceita `vencimento`, `baixa`, `dtbaixa`, `pagamento`, `quitacao` ou `pedido`. Para quitacao de carne, use `tipoData=baixa`. |
 | `loja` | nao | Filtra por `CReceber.Empresa`. |
+| `codCli` | nao | Filtra um cliente especifico por `CReceber.CodCli`. |
 | `somenteEmAberto` | nao | Padrao `true`. Quando `true`, aplica `c.Pago IS NULL`. |
 | `somentePagos` | nao | Padrao `false`. Quando `true`, aplica `c.Pago IS NOT NULL` e tem prioridade sobre `somenteEmAberto`. |
 
@@ -644,6 +645,12 @@ Exemplo para quitacoes/baixas no periodo:
 
 ```http
 GET /api/recebimentos/crediarista/titulos?dataInicio=2026-07-01&dataFim=2026-07-31&tipoData=baixa&somentePagos=true
+```
+
+Exemplo para consultar quitacoes/baixas de um cliente especifico:
+
+```http
+GET /api/recebimentos/crediarista/titulos?dataInicio=2026-07-01&dataFim=2026-07-31&tipoData=baixa&somentePagos=true&codCli=2656405
 ```
 
 Campos principais:
@@ -682,7 +689,7 @@ O CRM deve calcular localmente informacoes visuais como dias para vencer, dias e
 
 Retorna uma linha por cliente no periodo informado, consolidando os titulos retornaveis pela mesma regra do endpoint de titulos.
 
-Aceita os mesmos filtros de data e pagamento do endpoint de titulos, incluindo `tipoData=baixa` e `somentePagos=true` para campanhas de clientes que quitaram/baixaram carne no periodo.
+Aceita os mesmos filtros de data, cliente e pagamento do endpoint de titulos, incluindo `tipoData=baixa`, `somentePagos=true` e `codCli` para campanhas de clientes que quitaram/baixaram carne no periodo.
 
 Exemplo:
 
@@ -694,6 +701,12 @@ Exemplo para resumo de quitacoes/baixas no periodo:
 
 ```http
 GET /api/recebimentos/crediarista/clientes-resumo?dataInicio=2026-07-01&dataFim=2026-07-31&tipoData=baixa&somentePagos=true
+```
+
+Exemplo para resumo de quitacoes/baixas de um cliente especifico:
+
+```http
+GET /api/recebimentos/crediarista/clientes-resumo?dataInicio=2026-07-01&dataFim=2026-07-31&tipoData=baixa&somentePagos=true&codCli=2656405
 ```
 
 Campos principais:
