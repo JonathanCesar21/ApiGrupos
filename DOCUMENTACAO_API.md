@@ -188,6 +188,69 @@ Exemplo:
 GET /api/clientes/12345
 ```
 
+### `GET /api/clientes/crm`
+
+Retorna clientes com indicadores consolidados para o CRM e campanhas. Este endpoint foi criado para evitar que o CRM precise fazer varias consultas pesadas em recebimentos, terceiros e cadastro para calcular "sem parcelas em aberto", limite disponivel e quitacao de carne.
+
+A resposta sempre usa paginacao.
+
+Parametros:
+
+| Parametro | Obrigatorio | Descricao |
+|---|---|---|
+| `busca` | nao | Busca por nome, codigo, telefone, telefone de referencia, bairro ou cidade. |
+| `codCli` | nao | Filtra um cliente especifico. |
+| `loja` | nao | Filtra pela loja cadastrada no cliente (`Clientes.Loja`). |
+| `codGrupo` | nao | Filtra por `Clientes.CodGrupo`. |
+| `sexo` | nao | Aceita `0`/`homem`, `1`/`mulher` ou `nao-informado`. |
+| `rendaMin` | nao | Renda minima cadastrada. |
+| `rendaMax` | nao | Renda maxima cadastrada. |
+| `limiteDispMin` | nao | Limite disponivel minimo, ja descontando crediario e terceiros em aberto. |
+| `limiteDispMax` | nao | Limite disponivel maximo, ja descontando crediario e terceiros em aberto. |
+| `somenteSemParcelasEmAberto` | nao | Quando `true`, retorna apenas clientes sem aberto em `CReceber` e sem aberto em `CReceberCob`. |
+| `somenteComParcelasEmAberto` | nao | Quando `true`, retorna apenas clientes com aberto em `CReceber` ou `CReceberCob`. |
+| `comTerceiros` | nao | Quando `true`, retorna apenas clientes com aberto em `CReceberCob`. |
+| `semTerceiros` | nao | Quando `true`, retorna apenas clientes sem aberto em `CReceberCob`. |
+| `quitacaoDe` | nao | Filtra por `dtUltimaQuitacaoCarne` maior ou igual a esta data (`YYYY-MM-DD`). |
+| `quitacaoAte` | nao | Filtra por `dtUltimaQuitacaoCarne` menor ou igual a esta data (`YYYY-MM-DD`). |
+| `page` | nao | Pagina atual. Padrao `1`. |
+| `pageSize` | nao | Quantidade de clientes por pagina. Padrao `100`. |
+
+Exemplos:
+
+```http
+GET /api/clientes/crm?quitacaoDe=2026-07-01&quitacaoAte=2026-07-31&somenteSemParcelasEmAberto=true&limiteDispMin=500&page=1&pageSize=100
+```
+
+```http
+GET /api/clientes/crm?codCli=2656405
+```
+
+Campos adicionais de indicadores:
+
+| Campo | Descricao |
+|---|---|
+| `qtdEmAbertoCrediario` | Quantidade de parcelas em aberto em `CReceber` (`Pago IS NULL`). |
+| `totalEmAbertoCrediario` | Soma de `CReceber.Valor` em aberto. |
+| `qtdEmAbertoTerceiros` | Quantidade de parcelas em aberto em `CReceberCob` (`Recebimento IS NULL`). |
+| `totalEmAbertoTerceiros` | Soma de `CReceberCob.Valor` em aberto, sem juros. |
+| `qtdParcelasEmAberto` | Soma de abertos do crediario e terceiros. |
+| `totalEmAberto` | Soma de aberto do crediario e terceiros. |
+| `temParcelasEmAberto` | `true` quando `qtdParcelasEmAberto > 0`. |
+| `limiteDisponivel` | `limite - totalEmAberto`. Quando limite estiver nulo, considera `0` no calculo. |
+| `dtVencimentoMaisAntigoEmAberto` | Menor vencimento em aberto entre `CReceber` e `CReceberCob`. |
+| `diasMaiorAtraso` | Dias desde o vencimento mais antigo em aberto. Retorna `0` para vencimentos futuros e `null` quando nao ha aberto. |
+| `dtUltimaBaixa` | Maior `CReceber.Baixa` do cliente. |
+| `dtUltimaQuitacaoCarne` | Maior data de quitacao de carne/pedido. Considera pedidos de `CReceber` com todas as parcelas pagas e sem parcela em aberto no mesmo pedido em `CReceberCob`. |
+
+Regra de quitacao de carne:
+
+- Agrupa `CReceber` por `CodCli` e `Pedido`.
+- Um pedido so conta como quitado quando nao existe parcela com `Pago IS NULL`.
+- A data da quitacao do pedido e `MAX(Baixa)`.
+- O cliente recebe `dtUltimaQuitacaoCarne = MAX(data de quitacao dos pedidos quitados)`.
+- Se existir titulo em aberto em `CReceberCob` para o mesmo `CodCli` e `Pedido`, o pedido nao conta como quitado.
+
 ## Cadastros
 
 Todos os endpoints desta secao aceitam paginacao opcional.
