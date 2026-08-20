@@ -86,6 +86,7 @@ public class ClientesController : ControllerBase
                         c.Idade,
                         c.Loja,
                         c.Fone,
+                        c.Fwhats,
                         c.FoneRef1 AS FoneReferencia1,
                         c.FoneRef2 AS FoneReferencia2,
                         ROW_NUMBER() OVER (ORDER BY c.nome, c.Codigo) AS RowNum
@@ -107,6 +108,7 @@ public class ClientesController : ControllerBase
                     Idade,
                     Loja,
                     Fone,
+                    Fwhats,
                     FoneReferencia1,
                     FoneReferencia2
                 FROM Dados
@@ -196,6 +198,7 @@ public class ClientesController : ControllerBase
                     c.Idade,
                     c.Loja,
                     c.Fone,
+                    c.Fwhats,
                     c.FoneRef1 AS FoneReferencia1,
                     c.FoneRef2 AS FoneReferencia2
                 FROM Clientes c
@@ -254,6 +257,7 @@ public class ClientesController : ControllerBase
                     OR c.Bairro LIKE @Busca
                     OR cid.Cidade LIKE @Busca
                     OR c.Fone LIKE @Busca
+                    OR c.Fwhats LIKE @Busca
                     OR c.FoneRef1 LIKE @Busca
                     OR c.FoneRef2 LIKE @Busca
                 """;
@@ -316,8 +320,9 @@ public class ClientesController : ControllerBase
             Idade = ReadInt32(reader, 9),
             Loja = ReadInt32(reader, 10),
             Fone = ReadString(reader, 11),
-            FoneReferencia1 = ReadString(reader, 12),
-            FoneReferencia2 = ReadString(reader, 13)
+            Fwhats = ReadString(reader, 12),
+            FoneReferencia1 = ReadString(reader, 13),
+            FoneReferencia2 = ReadString(reader, 14)
         };
     }
 

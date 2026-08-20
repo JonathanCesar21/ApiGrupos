@@ -169,6 +169,7 @@ public class ClientesCrmController : ControllerBase
                     Idade,
                     Loja,
                     Fone,
+                    Fwhats,
                     FoneReferencia1,
                     FoneReferencia2,
                     QtdEmAbertoCrediario,
@@ -335,6 +336,7 @@ public class ClientesCrmController : ControllerBase
                     c.Idade,
                     c.Loja,
                     c.Fone,
+                    c.Fwhats,
                     c.FoneRef1 AS FoneReferencia1,
                     c.FoneRef2 AS FoneReferencia2,
                     ISNULL(ra.QtdEmAbertoCrediario, 0) AS QtdEmAbertoCrediario,
@@ -411,6 +413,7 @@ public class ClientesCrmController : ControllerBase
                     OR db.Bairro LIKE @Busca
                     OR db.NomeCidade LIKE @Busca
                     OR db.Fone LIKE @Busca
+                    OR db.Fwhats LIKE @Busca
                     OR db.FoneReferencia1 LIKE @Busca
                     OR db.FoneReferencia2 LIKE @Busca
                 """;
@@ -630,20 +633,21 @@ public class ClientesCrmController : ControllerBase
             Idade = ReadInt32(reader, 9),
             Loja = ReadInt32(reader, 10),
             Fone = ReadString(reader, 11),
-            FoneReferencia1 = ReadString(reader, 12),
-            FoneReferencia2 = ReadString(reader, 13),
-            QtdEmAbertoCrediario = Convert.ToInt32(reader.GetValue(14)),
-            TotalEmAbertoCrediario = Convert.ToDecimal(reader.GetValue(15)),
-            QtdEmAbertoTerceiros = Convert.ToInt32(reader.GetValue(16)),
-            TotalEmAbertoTerceiros = Convert.ToDecimal(reader.GetValue(17)),
-            QtdParcelasEmAberto = Convert.ToInt32(reader.GetValue(18)),
-            TotalEmAberto = Convert.ToDecimal(reader.GetValue(19)),
-            TemParcelasEmAberto = Convert.ToBoolean(reader.GetValue(20)),
-            LimiteDisponivel = ReadDecimal(reader, 21),
-            DtVencimentoMaisAntigoEmAberto = ReadDateTime(reader, 22),
-            DiasMaiorAtraso = ReadInt32(reader, 23),
-            DtUltimaBaixa = ReadDateTime(reader, 24),
-            DtUltimaQuitacaoCarne = ReadDateTime(reader, 25)
+            Fwhats = ReadString(reader, 12),
+            FoneReferencia1 = ReadString(reader, 13),
+            FoneReferencia2 = ReadString(reader, 14),
+            QtdEmAbertoCrediario = Convert.ToInt32(reader.GetValue(15)),
+            TotalEmAbertoCrediario = Convert.ToDecimal(reader.GetValue(16)),
+            QtdEmAbertoTerceiros = Convert.ToInt32(reader.GetValue(17)),
+            TotalEmAbertoTerceiros = Convert.ToDecimal(reader.GetValue(18)),
+            QtdParcelasEmAberto = Convert.ToInt32(reader.GetValue(19)),
+            TotalEmAberto = Convert.ToDecimal(reader.GetValue(20)),
+            TemParcelasEmAberto = Convert.ToBoolean(reader.GetValue(21)),
+            LimiteDisponivel = ReadDecimal(reader, 22),
+            DtVencimentoMaisAntigoEmAberto = ReadDateTime(reader, 23),
+            DiasMaiorAtraso = ReadInt32(reader, 24),
+            DtUltimaBaixa = ReadDateTime(reader, 25),
+            DtUltimaQuitacaoCarne = ReadDateTime(reader, 26)
         };
     }
 

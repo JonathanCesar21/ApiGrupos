@@ -40,6 +40,9 @@ public class Cliente
     [JsonPropertyName("fone")]
     public string? Fone { get; set; }
 
+    [JsonPropertyName("fwhats")]
+    public string? Fwhats { get; set; }
+
     [JsonPropertyName("foneReferencia1")]
     public string? FoneReferencia1 { get; set; }
 

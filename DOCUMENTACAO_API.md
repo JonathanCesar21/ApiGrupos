@@ -138,7 +138,7 @@ Parametros:
 
 | Parametro | Obrigatorio | Descricao |
 |---|---|---|
-| `busca` | nao | Busca por nome, codigo, telefone, telefone de referencia, bairro ou cidade. |
+| `busca` | nao | Busca por nome, codigo, telefone, WhatsApp, telefone de referencia, bairro ou cidade. |
 | `loja` | nao | Filtra pela loja cadastrada no cliente (`Clientes.Loja`). |
 | `page` | nao | Pagina atual. Padrao `1`. |
 | `pageSize` | nao | Quantidade de clientes por pagina. Padrao `100`. |
@@ -175,6 +175,7 @@ Campos de cliente:
 | `idade` | Idade cadastrada. |
 | `loja` | Loja cadastrada no cliente. |
 | `fone` | Telefone principal. |
+| `fwhats` | Numero de WhatsApp do cliente (`Clientes.Fwhats`). |
 | `foneReferencia1` | Telefone de referencia 1. |
 | `foneReferencia2` | Telefone de referencia 2. |
 
@@ -198,7 +199,7 @@ Parametros:
 
 | Parametro | Obrigatorio | Descricao |
 |---|---|---|
-| `busca` | nao | Busca por nome, codigo, telefone, telefone de referencia, bairro ou cidade. |
+| `busca` | nao | Busca por nome, codigo, telefone, WhatsApp, telefone de referencia, bairro ou cidade. |
 | `codCli` | nao | Filtra um cliente especifico. |
 | `loja` | nao | Filtra pela loja cadastrada no cliente (`Clientes.Loja`). |
 | `codGrupo` | nao | Filtra por `Clientes.CodGrupo`. |
