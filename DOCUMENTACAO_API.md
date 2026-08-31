@@ -319,6 +319,7 @@ Lista todos os subgrupos, ordenados pelo nome.
 | `nome` | texto | Nome do subgrupo. |
 | `grupoCodigo` | inteiro ou nulo | Codigo do grupo ao qual pertence. |
 | `codNcm` | texto ou nulo | Codigo NCM associado ao subgrupo. |
+| `departamento` | texto ou nulo | Nome do grupo associado ao subgrupo. |
 
 ### `GET /api/Subgrupos/por-grupo/{grupoCodigo}`
 

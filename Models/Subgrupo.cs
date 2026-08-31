@@ -6,4 +6,5 @@ public class Subgrupo
     public string Nome { get; set; } = string.Empty;
     public int? GrupoCodigo { get; set; }
     public string? CodNcm { get; set; }
+    public string? Departamento { get; set; }
 }
