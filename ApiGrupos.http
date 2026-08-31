@@ -102,6 +102,12 @@ X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
 
+GET {{ApiGrupos_HostAddress}}/api/recebimentos/crediarista/capitalizacao?dataInicio=2026-01-01&dataFim=2026-01-31
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/contasreceberterceiros/titulos?codCli=479410&somenteEmAberto=true
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}

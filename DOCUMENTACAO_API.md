@@ -680,6 +680,56 @@ Antes da agregacao, a consulta aplica a mesma deduplicacao por `ROW_NUMBER()` us
 
 ## Recebimentos
 
+### `GET /api/recebimentos/crediarista/capitalizacao`
+
+Retorna os recebimentos baixados usados no calculo de capitalizacao. O periodo e filtrado pela data de `Baixa`, sem a restricao de 70 dias aplicada ao endpoint de cobranca de titulos.
+
+As formas de pagamento seguem a medida DAX de capitalizacao:
+
+```text
+PIX, CHEQUE A VISTA,  DINHEIRO, MAQ STONE 02-06X,
+MAQ STONE 07-12X, MAQ STONE 02-06X ELO, MAQ STONE CRED ELO,
+MAQ STONE CREDITO, MAQ STONE DEBITO, MAQ STONE DEBITO ELO,
+ENTRADA, CARTAO ECOMMERCE, CONVENIOS CARD, MAQ STONE 07-12X ELO,
+VALECON, SOROCRED 01-07X, CHEQUE PRÉ
+```
+
+Registros com `Pedido = REC AG.` são excluidos. Pedidos nulos sao mantidos.
+
+Parametros:
+
+| Parametro | Obrigatorio | Descricao |
+|---|---|---|
+| `dataInicio` | sim | Primeiro dia de `Baixa` incluido, no formato `YYYY-MM-DD`. |
+| `dataFim` | sim | Ultimo dia de `Baixa` incluido, no formato `YYYY-MM-DD`. |
+| `loja` | nao | Filtra por `ContaReceber.Empresa`. |
+| `lojaRecebimento` | nao | Filtra por `ContaReceber.EmpresaRec`. |
+| `codCli` | nao | Filtra por `ContaReceber.CodCli`. |
+
+Exemplo para janeiro de 2026:
+
+```http
+GET /api/recebimentos/crediarista/capitalizacao?dataInicio=2026-01-01&dataFim=2026-01-31
+```
+
+Para reproduzir a medida `Capitalização (base)`, some `vlpago` dos itens retornados. O endpoint ja aplica o filtro de formas de pagamento e a exclusao de `REC AG.`.
+
+Campos retornados:
+
+| Campo | Descricao |
+|---|---|
+| `codFormaPagamento` | Codigo da forma de pagamento. |
+| `formaPagamento` | Nome da forma de pagamento. |
+| `tipo` | Tipo da forma de pagamento. |
+| `operador` | Operador do recebimento. |
+| `valor` | Valor original do recebimento. |
+| `vlpago` | Valor efetivamente pago, usado na capitalizacao. |
+| `baixa` | Data da baixa. |
+| `loja` | Empresa do titulo. |
+| `lojaRecebimento` | Empresa onde o recebimento foi registrado. |
+| `vencimento` | Data de vencimento. |
+| `pedido` | Pedido relacionado. |
+
 ### `GET /api/recebimentos/crediarista/titulos`
 
 Retorna os titulos de `CReceber` no periodo de vencimento informado, enriquecidos com dados basicos do cliente, cidade e forma de pagamento.

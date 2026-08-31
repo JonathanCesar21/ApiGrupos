@@ -12,11 +12,151 @@ public class RecebimentosCrediaristaController : ControllerBase
 {
     private const int CommandTimeoutSeconds = 60;
     private const int MaxPeriodoDias = 120;
+    private static readonly string[] FormasCapitalizacao =
+    [
+        "PIX",
+        "CHEQUE A VISTA",
+        " DINHEIRO",
+        "MAQ STONE 02-06X",
+        "MAQ STONE 07-12X",
+        "MAQ STONE 02-06X ELO",
+        "MAQ STONE CRED ELO",
+        "MAQ STONE CREDITO",
+        "MAQ STONE DEBITO",
+        "MAQ STONE DEBITO ELO",
+        "ENTRADA",
+        "CARTAO ECOMMERCE",
+        "CONVENIOS CARD",
+        "MAQ STONE 07-12X ELO",
+        "VALECON",
+        "SOROCRED 01-07X",
+        "CHEQUE PRÉ"
+    ];
     private readonly ConnectionStringProvider _connectionStringProvider;
 
     public RecebimentosCrediaristaController(ConnectionStringProvider connectionStringProvider)
     {
         _connectionStringProvider = connectionStringProvider;
+    }
+
+    [HttpGet("capitalizacao")]
+    public async Task<ActionResult> GetCapitalizacao(
+        [FromQuery] DateTime? dataInicio,
+        [FromQuery] DateTime? dataFim,
+        [FromQuery] int? loja,
+        [FromQuery] int? lojaRecebimento,
+        [FromQuery] int? codCli,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryResolvePeriodo(dataInicio, dataFim, "baixa", out var filtros, out var error))
+        {
+            return BadRequest(error);
+        }
+
+        try
+        {
+            var connectionString = _connectionStringProvider.GetConnectionString();
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    "Credenciais do banco nao configuradas. Acesse /configuracao para informar usuario e senha.");
+            }
+
+            var recebimentos = new List<CapitalizacaoRecebimento>();
+            var formaParameters = FormasCapitalizacao
+                .Select((_, index) => $"@Forma{index}")
+                .ToArray();
+
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync(cancellationToken);
+
+            var sql = $"""
+                SELECT
+                    c.FormaPagto AS CodFormaPagamento,
+                    fp.Forma AS FormaPagamento,
+                    fp.Tipo,
+                    c.Operador,
+                    c.Valor,
+                    c.vlpago,
+                    c.Baixa,
+                    c.Empresa AS Loja,
+                    c.EmpresaRec AS LojaRecebimento,
+                    c.Vencimento,
+                    c.Pedido
+                FROM ContaReceber c
+                JOIN FormaPG fp
+                    ON c.FormaPagto = fp.codforma
+                WHERE c.Baixa >= @DataInicio
+                  AND c.Baixa < @DataFimExclusivo
+                  AND fp.Forma IN ({string.Join(", ", formaParameters)})
+                  AND (c.Pedido IS NULL OR c.Pedido <> @PedidoExcluido)
+                  {GetLojaFilter(loja)}
+                  {GetLojaRecebimentoFilter(lojaRecebimento)}
+                  {GetClienteFilter(codCli)}
+                ORDER BY c.Baixa, c.Empresa, c.EmpresaRec, c.Pedido
+                """;
+
+            await using var command = new SqlCommand(sql, connection)
+            {
+                CommandTimeout = CommandTimeoutSeconds
+            };
+
+            AddCommonParameters(command, filtros, loja, codCli);
+            command.Parameters.Add("@PedidoExcluido", SqlDbType.VarChar, 20).Value = "REC AG.";
+
+            for (var index = 0; index < FormasCapitalizacao.Length; index++)
+            {
+                command.Parameters.Add(formaParameters[index], SqlDbType.VarChar, 100).Value = FormasCapitalizacao[index];
+            }
+
+            if (lojaRecebimento.HasValue)
+            {
+                command.Parameters.Add("@LojaRecebimento", SqlDbType.Int).Value = lojaRecebimento.Value;
+            }
+
+            await using var reader = await command.ExecuteReaderAsync(
+                CommandBehavior.SequentialAccess,
+                cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                recebimentos.Add(new CapitalizacaoRecebimento
+                {
+                    CodFormaPagamento = ReadInt32(reader, 0),
+                    FormaPagamento = ReadString(reader, 1),
+                    Tipo = ReadString(reader, 2),
+                    Operador = ReadString(reader, 3),
+                    Valor = ReadDecimal(reader, 4),
+                    Vlpago = ReadDecimal(reader, 5),
+                    Baixa = ReadDateTime(reader, 6),
+                    Loja = ReadInt32(reader, 7),
+                    LojaRecebimento = ReadInt32(reader, 8),
+                    Vencimento = ReadDateTime(reader, 9),
+                    Pedido = ReadString(reader, 10)
+                });
+            }
+
+            return Ok(recebimentos);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return new EmptyResult();
+        }
+        catch (SqlException ex) when (ex.Number == -2)
+        {
+            return StatusCode(StatusCodes.Status504GatewayTimeout,
+                $"A consulta excedeu o timeout de {CommandTimeoutSeconds} segundos e foi cancelada.");
+        }
+        catch (SqlException ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                $"Erro ao consultar capitalizacao no banco de dados: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                $"Erro inesperado ao consultar capitalizacao: {ex.Message}");
+        }
     }
 
     [HttpGet("titulos")]
@@ -340,6 +480,11 @@ public class RecebimentosCrediaristaController : ControllerBase
     private static string GetLojaFilter(int? loja)
     {
         return loja.HasValue ? "AND c.Empresa = @Loja" : string.Empty;
+    }
+
+    private static string GetLojaRecebimentoFilter(int? lojaRecebimento)
+    {
+        return lojaRecebimento.HasValue ? "AND c.EmpresaRec = @LojaRecebimento" : string.Empty;
     }
 
     private static string GetClienteFilter(int? codCli)
