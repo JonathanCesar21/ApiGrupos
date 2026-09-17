@@ -18,7 +18,8 @@ public partial class Form1 : Form
         "/api/ncm",
         "/api/situacao-tributaria",
         "/api/situacao-tributaria/rpa",
-        "/api/situacao-tributaria/simples"
+        "/api/situacao-tributaria/simples",
+        "/api/transferencias-lojas-pendentes"
     };
 
     public Form1()

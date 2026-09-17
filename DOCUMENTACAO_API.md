@@ -499,6 +499,34 @@ Lista transferencias automaticas pendentes: `Automatica = '1'`, `statusimpressao
 | `NotaFiscal` | texto | Numero da nota fiscal. |
 | `Loja` | texto | Codigo da loja de destino. |
 
+### `GET /api/transferencias-lojas-pendentes`
+
+Lista os itens de `TransferenciaControle` que ainda nao possuem um item correspondente em `Transferencia`. Quando a transferencia e efetivada, o registro de controle pode permanecer na tabela; a existencia do item em `Transferencia` e o criterio para exclui-lo do retorno.
+
+O vinculo compara `NotaFiscal`, `Origem`, `Destino`, `Codprod`, `CodCor`, `CodNumero`, `IdEmpresa` e `IdFilial`. Valores nulos de cor, numeracao, empresa e filial sao considerados iguais entre as tabelas. `Seq`, `Codigo` e `Data` nao participam do vinculo, pois podem mudar na efetivacao. `Etiqueta` e `AtualizadoMatriz` sao retornados para consulta, mas nao determinam a pendencia.
+
+O filtro e aplicado por item: um produto ja efetivado nao oculta outros produtos pendentes da mesma nota. Nao possui paginacao. Possui timeout de 60 segundos, suporta cancelamento e exige `X-API-Key`.
+
+| Parametro | Tipo | Obrigatorio | Descricao |
+|---|---|---|---|
+| `notaFiscal` | texto | Nao | Filtra uma nota fiscal exata, mantendo apenas os itens pendentes. Espacos nas extremidades sao removidos; vazio equivale a nao filtrar. |
+
+Exemplos:
+
+```http
+GET /api/transferencias-lojas-pendentes
+GET /api/transferencias-lojas-pendentes?notaFiscal=14092026110834
+GET /api/transferencias-lojas-pendentes?notaFiscal=11092026145241
+```
+
+Conforme as planilhas de referencia, o item da nota `14092026110834` (origem `3`, destino `7`) esta pendente. O item da nota `11092026145241` (origem `5`, destino `9`) ja consta em `Transferencia` e nao deve aparecer. Uma nota sem itens pendentes retorna `200 OK` com `[]`.
+
+Retorna uma lista JSON com os 23 campos de `TransferenciaControle`, preservando seus nomes e os tipos retornados pelo SQL Server:
+
+`Codprod`, `CodCor`, `CodFor`, `Referencia`, `Origem`, `Destino`, `Quant`, `Seq`, `CodNumero`, `NotaFiscal`, `Etiqueta`, `Impresso`, `Data`, `Codigo`, `Agrupar`, `Faturado`, `SerieNota`, `LojaNota`, `Obs`, `Usuario`, `IdEmpresa`, `IdFilial`, `AtualizadoMatriz`.
+
+Os registros sao ordenados por `Data` decrescente, seguida de `NotaFiscal`, `Origem`, `Destino` e `Seq`.
+
 ## Controle de volumes
 
 ### `GET /api/ControleVolumes`
