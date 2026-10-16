@@ -34,6 +34,7 @@ Source: "..\installer\abrir-painel.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\installer\start-tunnel.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\installer\stop-tunnel.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DOCUMENTACAO_API.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\INTEGRACAO_TRANSFERENCIAS_AUTOMATICAS.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\ApiGrupos\Painel de Controle"; Filename: "{app}\Painel\{#MyAppExeName}"

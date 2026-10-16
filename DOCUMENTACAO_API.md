@@ -78,7 +78,7 @@ Resposta paginada:
 
 ### Filtro por periodo
 
-Os endpoints de vendas e entradas exigem:
+Os endpoints de vendas e entradas que consultam por periodo exigem:
 
 - `dataInicio`: primeiro dia incluido no resultado, no formato `YYYY-MM-DD`.
 - `dataFim`: ultimo dia incluido no resultado, no formato `YYYY-MM-DD`.
@@ -595,6 +595,90 @@ GET /api/consulta-vendas?dataInicio=2022-01-01&dataFim=2022-01-31
 | `Departamento` | Departamento do produto. |
 
 Os tipos JSON seguem os tipos retornados diretamente pelo SQL Server.
+
+A consulta mantem o SQL original, sem os vinculos com `Transferencia` e `ProdutoBarras`. Os campos de atendimento pelo deposito e codigo de barras estao disponiveis somente no endpoint separado abaixo, evitando esse custo extra nas consultas por periodo.
+
+### `GET /api/consulta-vendas-transferencias-automaticas`
+
+Consulta uma unica venda por loja e pedido e retorna o indicador geral e o atendimento de cada item. Nao exige datas e nao altera o comportamento de `/api/consulta-vendas`. Possui timeout de 60 segundos e suporta cancelamento.
+
+Guia para integrar em outro sistema: [INTEGRACAO_TRANSFERENCIAS_AUTOMATICAS.md](INTEGRACAO_TRANSFERENCIAS_AUTOMATICAS.md).
+
+```http
+GET /api/consulta-vendas-transferencias-automaticas?loja=03&pedido=8008012-03
+X-API-Key: SUA_API_KEY
+```
+
+| Parametro | Tipo | Obrigatorio | Descricao |
+|---|---|---|---|
+| `loja` | inteiro positivo | Sim | Loja da venda. Aceita `3` ou `03`; o retorno formata como `"03"`. |
+| `pedido` | texto | Sim | Pedido completo, incluindo o sufixo. Ate 100 caracteres; espacos nas extremidades sao removidos. |
+
+| Campo da resposta | Tipo | Descricao |
+|---|---|---|
+| `loja` | texto | Loja consultada, com no minimo dois digitos. |
+| `pedido` | texto | Pedido consultado. |
+| `TemTransferenciaAutomatica` | booleano | `true` quando pelo menos um item tem `TransferenciaAutomatica = 1`. |
+| `itens` | array | Todos os itens da venda, inclusive os sem transferencia automatica. |
+
+| Campo de cada item | Tipo | Descricao |
+|---|---|---|
+| `referencia` | texto ou nulo | Referencia da venda. |
+| `Cor` | texto ou nulo | Cor da venda. |
+| `Numero` | texto ou nulo | Numeracao ou tamanho da venda. |
+| `quant` | decimal ou nulo | Quantidade original do item, sem agregacao. |
+| `barras` | texto ou nulo | Codigo unico cadastrado em `ProdutoBarras` para a referencia, cor e tamanho, preservando zeros a esquerda. Nulo se ausente ou ambiguo. |
+| `TransferenciaAutomatica` | inteiro | `1` quando encontrado o vinculo automatico com a Loja 5; `0` quando nao encontrado. |
+| `LojaOrigemEstoque` | texto ou nulo | `"05"` quando o indicador e `1`; nulo nos demais casos. |
+
+Uma venda existente sem itens automaticos retorna `200`, `TemTransferenciaAutomatica = false` e os itens com indicador `0`. Uma venda nao encontrada para a loja e pedido retorna `404`. Parametros ausentes ou invalidos retornam `400`; ausencia de credenciais SQL retorna `503`; timeout retorna `504`. Nao interpretar erros como ausencia de transferencia.
+
+O vinculo usa `Transferencia.Automatica = '1'`, `Origem = 5`, `Destino = loja`, `NotaFiscal = pedido`, `referencia`, a descricao de `Cor` e a descricao de `Numeracao`. Os codigos das lojas sao comparados como inteiros, aceitando por exemplo `3` e `03`. Nao se aplicam os filtros `statusimpressao = '1'` ou `DataAuto IS NULL`: transferencias ja expedidas continuam participando enquanto seus registros permanecerem em `Transferencia`. A consulta usa existencia para o atendimento e agregacao para o codigo de barras, sem multiplicar linhas ou alterar quantidades e valores da venda.
+
+Essa implementacao usa o historico de transferencias porque o campo persistente do item do pedido ("Sera entregue pelo deposito") ainda nao foi identificado no esquema do ERP. Se o ERP excluir a transferencia, nao e possivel recuperar esse atendimento por essa fonte. `0` significa ausencia do vinculo nessa fonte, e nao comprova que o item saiu do estoque local. Linhas repetidas com a mesma chave recebem o mesmo indicador; a chave disponivel nao distingue atendimento parcial entre essas linhas. O codigo de barras vem do cadastro atual da variante e nao comprova o codigo historico gravado no item vendido.
+
+Casos conferidos pelos resultados de `ConsultaVenda` e `Transferencia` enviados pelo usuario: as chaves dos tres itens coincidem, com origem 5 e `Automatica = '1'`. Os indicadores abaixo sao os resultados esperados da consulta implementada; o JSON da API ainda nao foi conferido nesses resultados.
+
+| Pedido | Produto informado | Situacao informada | `TransferenciaAutomatica` esperado |
+|---|---|---|---|
+| `8008331-17` | COLCHAO MOLA 174050 PANTANAL SUPER POKET | Pendente de confirmar impressao e de efetivar. | `1` |
+| `8014276-11` | CELULAR 169639 POCO C85 | Impressao confirmada, pendente de efetivar. | `1` |
+| `8008012-03` | LONDRES 5 PORTAS, MALBEC | Impresso e ja entregue. | `1` |
+
+O script `scripts/conferir-transferencias-vendas.sql` consulta os itens das vendas e os registros de `Transferencia` e `TransferenciaControle` desses pedidos, sem alterar dados. Se o item existir apenas em `TransferenciaControle`, a implementacao atual nao o identifica: e necessario confirmar uma fonte que comprove o atendimento automatico nesse estagio.
+
+O script `scripts/conferir-barras-vendas.sql` mostra o codigo que a selecao atual retornaria, a quantidade de codigos distintos da variante e os cadastros dessas referencias. Tambem consulta `ConsultaVenda.barras` quando essa coluna e visivel no esquema, permitindo comparar com uma eventual fonte direta da venda.
+
+Nos resultados desse script enviados pelo usuario, os tres itens apresentaram `CodigosDistintos = 1` e `SituacaoBarras = CODIGO_UNICO_NO_CADASTRO`:
+
+| Pedido | Referencia | Cor | Numero | `barras` conferido |
+|---|---|---|---|---|
+| `8008012-03` | `010037LP` | `MALBEC` | `0` | `0519365747` |
+| `8008331-17` | `174050` | `0` | `1,58` | `0519719008` |
+| `8014276-11` | `169639` | `0` | `UN` | `0519648832` |
+
+Os outros cadastros de cor dessas referencias nao interferiram na selecao. A consulta de metadados nao identificou `barras` em `ConsultaVenda`; os codigos acima foram conferidos no cadastro atual de `ProdutoBarras`.
+
+Exemplo de resposta da nova rota, com os valores conferidos para o pedido `8008012-03`:
+
+```json
+{
+  "loja": "03",
+  "pedido": "8008012-03",
+  "TemTransferenciaAutomatica": true,
+  "itens": [
+    {
+      "referencia": "010037LP",
+      "Cor": "MALBEC",
+      "Numero": "0",
+      "barras": "0519365747",
+      "quant": 1,
+      "TransferenciaAutomatica": 1,
+      "LojaOrigemEstoque": "05"
+    }
+  ]
+}
+```
 
 ### `GET /api/consulta-vendas-agregado`
 

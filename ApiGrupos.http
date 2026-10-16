@@ -31,6 +31,27 @@ X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
 
+# Consulta somente a venda informada, incluindo itens automaticos e locais.
+GET {{ApiGrupos_HostAddress}}/api/consulta-vendas-transferencias-automaticas?loja=03&pedido=8008012-03
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
+# Antes de confirmar impressao; esperado: TemTransferenciaAutomatica = true.
+GET {{ApiGrupos_HostAddress}}/api/consulta-vendas-transferencias-automaticas?loja=17&pedido=8008331-17
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
+# Impresso e pendente de efetivacao; esperado: TemTransferenciaAutomatica = true.
+GET {{ApiGrupos_HostAddress}}/api/consulta-vendas-transferencias-automaticas?loja=11&pedido=8014276-11
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/consulta-vendas-agregado?dataInicio=2024-01-01&dataFim=2024-01-31
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}
