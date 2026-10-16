@@ -56,6 +56,8 @@ public class ConsultaVendasTransferenciasAutomaticasController : ControllerBase
 
             // A consulta e limitada a uma venda. Impressao e DataAuto nao filtram
             // o vinculo, para incluir transferencias pendentes e ja expedidas.
+            // Parametros de loja em texto aceitam colunas numericas ou textuais
+            // com 3/03, sem TRY_CONVERT e sem converter valores invalidos em int.
             const string sql = """
                 SELECT
                     v.referencia,
@@ -74,8 +76,8 @@ public class ConsultaVendasTransferenciasAutomaticasController : ControllerBase
                         LEFT JOIN Cor c ON c.Codigo = t.CodCor
                         LEFT JOIN Numeracao n ON n.Codigo = t.CodNumero
                         WHERE t.Automatica = '1'
-                          AND TRY_CONVERT(int, t.Origem) = 5
-                          AND TRY_CONVERT(int, t.Destino) = @Loja
+                          AND t.Origem IN ('5', '05')
+                          AND t.Destino IN (@Loja, @LojaFormatada)
                           AND t.NotaFiscal = v.pedido
                           AND t.referencia = v.referencia
                           AND (c.Descricao = v.Cor OR (t.CodCor IS NULL AND v.Cor IS NULL))
@@ -95,19 +97,21 @@ public class ConsultaVendasTransferenciasAutomaticasController : ControllerBase
                       AND NULLIF(LTRIM(RTRIM(pb.barras)), '') IS NOT NULL
                 ) produto
                 WHERE v.pedido = @Pedido
-                  AND TRY_CONVERT(int, v.loja) = @Loja
+                  AND v.loja IN (@Loja, @LojaFormatada)
                 """;
 
             await using var command = new SqlCommand(sql, connection)
             {
                 CommandTimeout = CommandTimeoutSeconds
             };
-            command.Parameters.Add("@Loja", SqlDbType.Int).Value = loja.Value;
+            var lojaFormatada = loja.Value.ToString("D2", CultureInfo.InvariantCulture);
+            command.Parameters.Add("@Loja", SqlDbType.VarChar, 10).Value = loja.Value.ToString(CultureInfo.InvariantCulture);
+            command.Parameters.Add("@LojaFormatada", SqlDbType.VarChar, 10).Value = lojaFormatada;
             command.Parameters.Add("@Pedido", SqlDbType.VarChar, PedidoMaxLength).Value = pedidoNormalizado;
 
             var resposta = new VendaTransferenciasAutomaticasResposta
             {
-                Loja = loja.Value.ToString("D2", CultureInfo.InvariantCulture),
+                Loja = lojaFormatada,
                 Pedido = pedidoNormalizado
             };
 
