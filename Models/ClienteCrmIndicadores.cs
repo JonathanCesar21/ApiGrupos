@@ -19,6 +19,9 @@ public class ClienteCrmIndicadores
     [JsonPropertyName("dtNascimento")]
     public DateTime? DtNascimento { get; set; }
 
+    [JsonPropertyName("dtCadastro")]
+    public string? DtCadastro { get; set; }
+
     [JsonPropertyName("sexo")]
     public string Sexo { get; set; } = string.Empty;
 

@@ -183,7 +183,8 @@ public class ClientesCrmController : ControllerBase
                     DtVencimentoMaisAntigoEmAberto,
                     DiasMaiorAtraso,
                     DtUltimaBaixa,
-                    DtUltimaQuitacaoCarne
+                    DtUltimaQuitacaoCarne,
+                    dtCadastro
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum
@@ -325,6 +326,7 @@ public class ClientesCrmController : ControllerBase
                     c.Bairro,
                     cid.Cidade AS NomeCidade,
                     c.dtNascimento,
+                    CONVERT(varchar(10), c.cadastro, 103) AS dtCadastro,
                     CASE c.Sexo
                         WHEN 0 THEN 'Homem'
                         WHEN 1 THEN 'Mulher'
@@ -647,7 +649,8 @@ public class ClientesCrmController : ControllerBase
             DtVencimentoMaisAntigoEmAberto = ReadDateTime(reader, 23),
             DiasMaiorAtraso = ReadInt32(reader, 24),
             DtUltimaBaixa = ReadDateTime(reader, 25),
-            DtUltimaQuitacaoCarne = ReadDateTime(reader, 26)
+            DtUltimaQuitacaoCarne = ReadDateTime(reader, 26),
+            DtCadastro = ReadString(reader, 27)
         };
     }
 

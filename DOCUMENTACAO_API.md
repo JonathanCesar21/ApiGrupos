@@ -231,6 +231,7 @@ Campos adicionais de indicadores:
 
 | Campo | Descricao |
 |---|---|
+| `dtCadastro` | Data de cadastro do cliente (`Clientes.cadastro`), em texto no formato `DD/MM/AAAA`, sem horario. Exemplo: `2026-10-19 09:50:19.990` retorna `19/10/2026`. Retorna `null` quando nao ha data de cadastro. |
 | `qtdEmAbertoCrediario` | Quantidade de parcelas em aberto em `CReceber` (`Pago IS NULL`). |
 | `totalEmAbertoCrediario` | Soma de `CReceber.Valor` em aberto. |
 | `qtdEmAbertoTerceiros` | Quantidade de parcelas em aberto em `CReceberCob` (`Recebimento IS NULL`). |
