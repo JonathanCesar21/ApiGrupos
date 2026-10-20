@@ -191,6 +191,8 @@ GET /api/clientes/12345
 
 ### `GET /api/clientes/crm`
 
+Guia das alteracoes para integrar ao CRM, com tipos, exemplo JSON e tratamento de valores nulos: [INTEGRACAO_CLIENTES_CRM.md](INTEGRACAO_CLIENTES_CRM.md). O pacote 1.3.4, de 20/10/2026, inclui esse guia e o relatorio de desempenho; os indicadores foram implementados e medidos na versao 1.3.3.
+
 Retorna clientes com indicadores consolidados para o CRM e campanhas. Este endpoint foi criado para evitar que o CRM precise fazer varias consultas pesadas em recebimentos, terceiros e cadastro para calcular "sem parcelas em aberto", limite disponivel e quitacao de carne.
 
 A resposta sempre usa paginacao.
@@ -214,6 +216,7 @@ Parametros:
 | `semTerceiros` | nao | Quando `true`, retorna apenas clientes sem aberto em `CReceberCob`. |
 | `quitacaoDe` | nao | Filtra por `dtUltimaQuitacaoCarne` maior ou igual a esta data (`YYYY-MM-DD`). |
 | `quitacaoAte` | nao | Filtra por `dtUltimaQuitacaoCarne` menor ou igual a esta data (`YYYY-MM-DD`). |
+| `incluirHistorico` | nao | Padrao `true`. Inclui o objeto `historico` com pagamentos dos ultimos 12 meses e pedidos de acordo/terceiros de todo o historico existente. Com `false`, executa a consulta anterior e omite esse objeto. |
 | `page` | nao | Pagina atual. Padrao `1`. |
 | `pageSize` | nao | Quantidade de clientes por pagina. Padrao `100`. |
 
@@ -252,6 +255,48 @@ Regra de quitacao de carne:
 - A data da quitacao do pedido e `MAX(Baixa)`.
 - O cliente recebe `dtUltimaQuitacaoCarne = MAX(data de quitacao dos pedidos quitados)`.
 - Se existir titulo em aberto em `CReceberCob` para o mesmo `CodCli` e `Pedido`, o pedido nao conta como quitado.
+
+Historico de pagamentos e encaminhamentos:
+
+```http
+GET /api/clientes/crm?codCli=2021001
+GET /api/clientes/crm?codCli=2021001&incluirHistorico=false
+```
+
+Os novos campos ficam dentro de `items[].historico`. Os campos anteriores, incluindo `qtdEmAbertoTerceiros` e `totalEmAbertoTerceiros`, continuam no item principal.
+
+| Campo em `historico` | Descricao |
+|---|---|
+| `qtdEncaminhamentosHistorico` | Pedidos distintos por cliente, reunindo pedidos `AC` de `CReceber` e todos os pedidos de `CReceberCob`, pagos ou em aberto. Um pedido presente nas duas fontes conta uma vez. |
+| `qtdAcordosHistorico` | Pedidos distintos iniciados por `AC`, nas duas fontes, sem limite de data. |
+| `qtdAcordosEmAberto` | Acordos que ainda possuem pelo menos uma parcela em aberto em qualquer fonte. |
+| `qtdAcordosQuitados` | Acordos sem parcelas em aberto nas fontes consultadas. |
+| `qtdEncaminhamentosTerceirosHistorico` | Pedidos distintos existentes em `CReceberCob`, incluindo os ja recebidos. |
+| `qtdEncaminhamentosTerceirosEmAberto` | Pedidos de terceiros com pelo menos uma parcela sem recebimento. |
+| `qtdEncaminhamentosTerceirosQuitados` | Pedidos de terceiros cujas parcelas nessa fonte possuem recebimento. |
+| `qtdParcelasPagas12Meses` | Parcelas pagas nos ultimos 12 meses, pela data da baixa no crediario ou recebimento em terceiros. |
+| `qtdParcelasPagasComAtraso12Meses` | Parcelas desse periodo com pagamento em dia posterior ao vencimento. |
+| `qtdParcelasPagasSemVencimento12Meses` | Pagamentos cujo vencimento esta ausente, impossibilitando classificar o atraso. |
+| `mediaDiasAtraso12Meses` | Media de dias de atraso somente entre as parcelas pagas com atraso, com duas casas decimais. Sem pagamentos, retorna `null`; pagamentos conhecidos sem atraso retornam `0`. |
+| `percentualParcelasPagasComAtraso12Meses` | `100 * atrasadas / pagas`, com duas casas decimais. Sem pagamentos ou com vencimentos ausentes, retorna `null`. |
+| `diaHabitualPagamento` | Dia central da faixa habitual, ou `null` quando os dados nao sustentam um padrao. `31` tambem representa o ultimo dia de meses mais curtos. |
+| `concentracaoDiaHabitualPagamento` | Percentual ponderado de pagamentos na faixa de dois dias antes/depois do dia estimado. Mede concentracao, nao probabilidade nem data de recebimento de salario. |
+| `qtdDatasPagamento12Meses` | Quantidade de datas distintas de pagamento usadas para estimar o habito. Vinte parcelas pagas no mesmo dia representam uma data. |
+| `qtdMesesComPagamento12Meses` | Quantidade de meses com pagamento dentro da janela analisada. |
+
+A janela inclui a data atual do SQL Server, exclui pagamentos futuros e comeca na mesma data de 12 meses atras. Atraso usa dias de calendario; horario diferente no mesmo dia nao conta como atraso. Usa `Pago IS NOT NULL` e `Baixa` em `CReceber`, e `Recebimento` em `CReceberCob`. Conforme a regra do ERP, parcelas transferidas nao permanecem no crediario, permitindo reunir os pagamentos com `UNION ALL`. A consulta nao aplica os cortes de 70 dias de vencimento ou de 120 dias de periodo existentes em outros endpoints.
+
+O habito considera cada data uma vez e distribui um voto mensal entre as datas daquele mes. O mes atual e os dois anteriores recebem peso 3; os tres meses anteriores a esses recebem peso 2; os demais recebem peso 1. Pagamentos no ultimo dia do mes sao representados pelo dia 31. A faixa considera a virada do mes, por exemplo dias 31 e 1. Sao exigidos pelo menos tres meses com pagamentos e concentracao de 60% na faixa de mais ou menos dois dias. Empates favorecem menor distancia ao centro, maior peso no dia exato e pagamentos mais recentes; persistindo o empate, usa o menor dia. Sem tres meses, dia e concentracao retornam `null`; com padrao disperso, apenas o dia retorna `null`.
+
+As contagens de acordos e terceiros podem se sobrepor: um acordo `AC` enviado a terceiros aparece nas duas categorias, mas uma vez no total de encaminhamentos. Pedidos nulos ou vazios nao representam encaminhamentos identificaveis. Os totais dependem dos registros preservados no ERP; registros excluidos nao podem ser recuperados por esta consulta.
+
+O historico e calculado em lote somente para os clientes da pagina, depois da consulta e paginacao originais. A contagem total de clientes nao executa esses novos calculos. Sao usadas tabelas temporarias da conexao; nenhuma tabela ou indice permanente e criado no ERP.
+
+Verificacoes locais: `dotnet run --project tests/ApiGrupos.ClientesCrmHistorico/ApiGrupos.ClientesCrmHistorico.csproj -c Release`. A integracao SQL opcional requer `APIGRUPOS_TEST_SQL_CONNECTION` e usa apenas tabelas temporarias com dados sinteticos; sua ausencia e reportada como `SKIP`.
+
+Medicao da consulta geral: `scripts/medir-clientes-crm.ps1 -Fase Antes -BaseUrl https://api.apiaob.com.br/`, antes de atualizar o servidor, e depois o mesmo comando com `-Fase Depois`. A chave e lida de `APIGRUPOS_API_KEY` no ambiente ou no `.env` local, ignorado pelo Git. O script percorre todas as paginas com `pageSize=150000`, faz um aquecimento e tres repeticoes, verifica totais e salva estatisticas em `build-check/crm-benchmark`, sem dados individuais. A fase Depois exige o objeto `historico`; a linha de base Antes nao e sobrescrita.
+
+Comparacao concluida em 19/10/2026, antes da implementacao e apos instalar a versao 1.3.3 no mesmo ambiente: 188.274 clientes em duas paginas em todas as execucoes, com um aquecimento e tres amostras por versao. Mediana HTTP: 103,98 s antes e 98,41 s depois (-5,36%). Mediana do tempo total do script, incluindo a leitura do JSON: 176,09 s antes e 213,79 s depois (+21,41%). O JSON completo passou de 129,88 MB para 233,20 MB (+79,55%). O tempo HTTP inclui execucao, serializacao e transferencia pela internet; nao representa apenas o tempo SQL. A variacao das amostras impede atribuir a queda de HTTP a uma melhoria dos calculos. Detalhes e amostras em [DESEMPENHO_CLIENTES_CRM.md](DESEMPENHO_CLIENTES_CRM.md). Para consultas que dispensam o historico, `incluirHistorico=false` evita os novos calculos e o objeto adicional.
 
 ## Cadastros
 

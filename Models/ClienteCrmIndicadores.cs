@@ -4,6 +4,10 @@ namespace ApiGrupos.Models;
 
 public class ClienteCrmIndicadores
 {
+    [JsonPropertyName("historico")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ClienteCrmHistorico? Historico { get; set; }
+
     [JsonPropertyName("codigo")]
     public int Codigo { get; set; }
 

@@ -25,6 +25,18 @@ X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
 
+GET {{ApiGrupos_HostAddress}}/api/clientes/crm?codCli=2021001
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
+GET {{ApiGrupos_HostAddress}}/api/clientes/crm?codCli=2021001&incluirHistorico=false
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/consulta-vendas?dataInicio=2022-01-01&dataFim=2022-01-31
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}

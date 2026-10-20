@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 using ApiGrupos.Models;
 using ApiGrupos.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,7 @@ public class ClientesCrmController : ControllerBase
         [FromQuery] bool semTerceiros = false,
         [FromQuery] DateTime? quitacaoDe = null,
         [FromQuery] DateTime? quitacaoAte = null,
+        [FromQuery] bool incluirHistorico = true,
         CancellationToken cancellationToken = default)
     {
         if (!paginacao.TryResolve(out var page, out var pageSize, out var error))
@@ -140,6 +142,7 @@ public class ClientesCrmController : ControllerBase
             var rowStart = ((page - 1) * pageSize) + 1;
             var rowEnd = rowStart + pageSize - 1;
 
+            var destinoHistorico = incluirHistorico ? ", RowNum\nINTO #ClientesCrmPagina" : string.Empty;
             var sql = $"""
                 {cte},
                 Dados AS
@@ -184,10 +187,11 @@ public class ClientesCrmController : ControllerBase
                     DiasMaiorAtraso,
                     DtUltimaBaixa,
                     DtUltimaQuitacaoCarne,
-                    dtCadastro
+                    dtCadastro{destinoHistorico}
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
-                ORDER BY RowNum
+                ORDER BY RowNum;
+                {(incluirHistorico ? ClienteCrmHistoricoSql.Consulta : string.Empty)}
                 """;
 
             await using var command = new SqlCommand(sql, connection)
@@ -218,7 +222,12 @@ public class ClientesCrmController : ControllerBase
 
             while (await reader.ReadAsync(cancellationToken))
             {
-                clientes.Add(ReadClienteCrmIndicadores(reader));
+                clientes.Add(ReadClienteCrmIndicadores(reader, incluirHistorico));
+            }
+
+            if (incluirHistorico && await reader.NextResultAsync(cancellationToken))
+            {
+                await ReadDiasHabituaisAsync(reader, clientes, cancellationToken);
             }
 
             var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
@@ -619,9 +628,9 @@ public class ClientesCrmController : ControllerBase
         return false;
     }
 
-    private static ClienteCrmIndicadores ReadClienteCrmIndicadores(SqlDataReader reader)
+    private static ClienteCrmIndicadores ReadClienteCrmIndicadores(DbDataReader reader, bool incluirHistorico)
     {
-        return new ClienteCrmIndicadores
+        var cliente = new ClienteCrmIndicadores
         {
             Codigo = Convert.ToInt32(reader.GetValue(0)),
             Nome = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
@@ -652,24 +661,70 @@ public class ClientesCrmController : ControllerBase
             DtUltimaQuitacaoCarne = ReadDateTime(reader, 26),
             DtCadastro = ReadString(reader, 27)
         };
+
+        if (incluirHistorico)
+        {
+            var historico = new ClienteCrmHistorico
+            {
+                QtdEncaminhamentosHistorico = reader.GetInt32(reader.GetOrdinal("HistQtdEncaminhamentos")),
+                QtdAcordosHistorico = reader.GetInt32(reader.GetOrdinal("HistQtdAcordos")),
+                QtdAcordosEmAberto = reader.GetInt32(reader.GetOrdinal("HistQtdAcordosEmAberto")),
+                QtdAcordosQuitados = reader.GetInt32(reader.GetOrdinal("HistQtdAcordosQuitados")),
+                QtdEncaminhamentosTerceirosHistorico = reader.GetInt32(reader.GetOrdinal("HistQtdTerceiros")),
+                QtdEncaminhamentosTerceirosEmAberto = reader.GetInt32(reader.GetOrdinal("HistQtdTerceirosEmAberto")),
+                QtdEncaminhamentosTerceirosQuitados = reader.GetInt32(reader.GetOrdinal("HistQtdTerceirosQuitados"))
+            };
+            ClienteCrmHistoricoCalculos.AplicarAtrasos(historico,
+                reader.GetInt32(reader.GetOrdinal("HistQtdPagas")),
+                reader.GetInt32(reader.GetOrdinal("HistQtdAtrasadas")),
+                reader.GetInt32(reader.GetOrdinal("HistQtdSemVencimento")),
+                reader.GetInt64(reader.GetOrdinal("HistTotalDiasAtraso")));
+            historico.QtdDatasPagamento12Meses = reader.GetInt32(reader.GetOrdinal("HistQtdDatas"));
+            historico.QtdMesesComPagamento12Meses = reader.GetInt32(reader.GetOrdinal("HistQtdMeses"));
+            cliente.Historico = historico;
+        }
+
+        return cliente;
     }
 
-    private static string? ReadString(SqlDataReader reader, int ordinal)
+    private static async Task ReadDiasHabituaisAsync(DbDataReader reader,
+        List<ClienteCrmIndicadores> clientes, CancellationToken cancellationToken)
+    {
+        var clientesPorCodigo = clientes.ToDictionary(cliente => cliente.Codigo);
+        var dias = new List<ClienteCrmHistoricoCalculos.DiaPagamento>(31);
+        int? codigoAtual = null;
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var codigo = Convert.ToInt32(reader.GetValue(0));
+            if (codigoAtual.HasValue && codigo != codigoAtual.Value)
+            {
+                ClienteCrmHistoricoCalculos.AplicarDiaHabitual(clientesPorCodigo[codigoAtual.Value].Historico!, dias);
+                dias.Clear();
+            }
+            codigoAtual = codigo;
+            dias.Add(new ClienteCrmHistoricoCalculos.DiaPagamento(
+                reader.GetInt32(1), reader.GetDecimal(2), reader.GetDateTime(3)));
+        }
+        if (codigoAtual.HasValue)
+            ClienteCrmHistoricoCalculos.AplicarDiaHabitual(clientesPorCodigo[codigoAtual.Value].Historico!, dias);
+    }
+
+    private static string? ReadString(DbDataReader reader, int ordinal)
     {
         return reader.IsDBNull(ordinal) ? null : reader.GetValue(ordinal).ToString();
     }
 
-    private static int? ReadInt32(SqlDataReader reader, int ordinal)
+    private static int? ReadInt32(DbDataReader reader, int ordinal)
     {
         return reader.IsDBNull(ordinal) ? null : Convert.ToInt32(reader.GetValue(ordinal));
     }
 
-    private static decimal? ReadDecimal(SqlDataReader reader, int ordinal)
+    private static decimal? ReadDecimal(DbDataReader reader, int ordinal)
     {
         return reader.IsDBNull(ordinal) ? null : Convert.ToDecimal(reader.GetValue(ordinal));
     }
 
-    private static DateTime? ReadDateTime(SqlDataReader reader, int ordinal)
+    private static DateTime? ReadDateTime(DbDataReader reader, int ordinal)
     {
         return reader.IsDBNull(ordinal) ? null : Convert.ToDateTime(reader.GetValue(ordinal));
     }
