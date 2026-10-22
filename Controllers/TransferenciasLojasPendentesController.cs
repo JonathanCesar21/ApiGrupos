@@ -64,7 +64,8 @@ public class TransferenciasLojasPendentesController : ControllerBase
                     tc.IdFilial,
                     tc.AtualizadoMatriz
                 FROM TransferenciaControle tc
-                WHERE NOT EXISTS
+                WHERE tc.Data >= '20260601'
+                  AND NOT EXISTS
                 (
                     SELECT 1
                     FROM Transferencia t

@@ -47,6 +47,9 @@ public class ClienteCrmIndicadores
     [JsonPropertyName("fone")]
     public string? Fone { get; set; }
 
+    [JsonPropertyName("celular")]
+    public string? Celular { get; set; }
+
     [JsonPropertyName("fwhats")]
     public string? Fwhats { get; set; }
 

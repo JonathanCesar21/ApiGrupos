@@ -25,6 +25,13 @@ X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
 
+# Conferencia do campo celular no cadastro do cliente informado.
+GET {{ApiGrupos_HostAddress}}/api/clientes/crm?codCli=1209310
+Accept: application/json
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/clientes/crm?codCli=2021001
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}
@@ -93,6 +100,7 @@ X-API-Key: {{ApiGrupos_ApiKey}}
 
 ###
 
+# Apenas pendencias com Data a partir de 01/06/2026 (inclusive).
 GET {{ApiGrupos_HostAddress}}/api/transferencias-lojas-pendentes
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}

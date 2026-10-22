@@ -48,6 +48,7 @@ Check(historico.DiaHabitualPagamento is null && historico.ConcentracaoDiaHabitua
 // Exercita o mapeamento de producao, inclusive os campos antigos e os dois resultados SQL.
 var table = new DataTable();
 for (var i = 0; i < 28; i++) table.Columns.Add("Base" + i, typeof(object));
+table.Columns.Add("Celular", typeof(object));
 table.Columns.Add("RowNum", typeof(object));
 foreach (var name in new[] { "HistQtdEncaminhamentos", "HistQtdAcordos", "HistQtdAcordosEmAberto", "HistQtdAcordosQuitados",
     "HistQtdTerceiros", "HistQtdTerceirosEmAberto", "HistQtdTerceirosQuitados", "HistQtdPagas", "HistQtdAtrasadas",
@@ -55,15 +56,17 @@ foreach (var name in new[] { "HistQtdEncaminhamentos", "HistQtdAcordos", "HistQt
 var row = table.NewRow();
 row[0] = 2021001; row[1] = "Cliente de teste"; row[5] = "Mulher";
 row[15] = 1; row[16] = 100m; row[17] = 2; row[18] = 200m; row[19] = 3; row[20] = 300m; row[21] = true;
-row[27] = "19/10/2026"; row[28] = 1L;
+row[27] = "19/10/2026"; row[28] = "17999990000"; row[29] = 1L;
 var extras = new object[] { 6, 3, 1, 2, 4, 1, 3, 20, 5, 0, 90L, 3, 3 };
-for (var i = 0; i < extras.Length; i++) row[i + 29] = extras[i];
+for (var i = 0; i < extras.Length; i++) row[i + 30] = extras[i];
 table.Rows.Add(row);
 var read = typeof(ClientesCrmController).GetMethod("ReadClienteCrmIndicadores", BindingFlags.NonPublic | BindingFlags.Static)!;
 using var reader = table.CreateDataReader();
 reader.Read();
 var cliente = (ClienteCrmIndicadores)read.Invoke(null, new object[] { reader, true })!;
 Check(cliente.Codigo == 2021001 && cliente.DtCadastro == "19/10/2026" && cliente.TotalEmAbertoTerceiros == 200m, "Mapeamento antigo deve permanecer intacto.");
+Check(cliente.Celular == "17999990000" && cliente.Fone is null && cliente.Fwhats is null,
+    "Celular deve ser retornado mesmo sem telefone principal ou WhatsApp.");
 Check(cliente.Historico is { QtdEncaminhamentosHistorico: 6, QtdAcordosHistorico: 3, QtdAcordosEmAberto: 1, QtdAcordosQuitados: 2,
     QtdEncaminhamentosTerceirosHistorico: 4, QtdEncaminhamentosTerceirosEmAberto: 1, QtdEncaminhamentosTerceirosQuitados: 3,
     MediaDiasAtraso12Meses: 18, PercentualParcelasPagasComAtraso12Meses: 25 }, "Mapeamento de acordos, terceiros ou atrasos incorreto.");
@@ -80,9 +83,25 @@ Check(cliente.Historico!.DiaHabitualPagamento == 10 && cliente2.Historico!.DiaHa
 var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 using var json = JsonDocument.Parse(JsonSerializer.Serialize(cliente, jsonOptions));
 Check(json.RootElement.GetProperty("historico").GetProperty("mediaDiasAtraso12Meses").GetDecimal() == 18, "Contrato JSON do historico incorreto.");
+Check(json.RootElement.GetProperty("celular").GetString() == "17999990000", "Celular deve ser serializado como texto no JSON.");
 var antigo = (ClienteCrmIndicadores)read.Invoke(null, new object[] { reader, false })!;
 using var jsonAntigo = JsonDocument.Parse(JsonSerializer.Serialize(antigo, jsonOptions));
 Check(!jsonAntigo.RootElement.TryGetProperty("historico", out _), "incluirHistorico=false deve preservar o contrato e tamanho anteriores.");
+Check(jsonAntigo.RootElement.GetProperty("celular").GetString() == "17999990000", "Celular deve ser retornado tambem sem historico.");
+var semCelular = table.Clone();
+var rowSemCelular = semCelular.NewRow();
+rowSemCelular.ItemArray = row.ItemArray;
+rowSemCelular["Celular"] = DBNull.Value;
+semCelular.Rows.Add(rowSemCelular);
+using var readerSemCelular = semCelular.CreateDataReader();
+readerSemCelular.Read();
+foreach (var incluir in new[] { true, false })
+{
+    var clienteSemCelular = (ClienteCrmIndicadores)read.Invoke(null, new object[] { readerSemCelular, incluir })!;
+    using var jsonSemCelular = JsonDocument.Parse(JsonSerializer.Serialize(clienteSemCelular, jsonOptions));
+    Check(jsonSemCelular.RootElement.GetProperty("celular").ValueKind == JsonValueKind.Null,
+        "Celular ausente deve retornar null, com ou sem historico.");
+}
 
 new TSql100Parser(true).Parse(new StringReader(ClienteCrmHistoricoSql.Consulta), out var errors);
 Check(errors.Count == 0, "Sintaxe SQL Server 2008 invalida: " + string.Join("; ", errors.Select(error => error.Message)));

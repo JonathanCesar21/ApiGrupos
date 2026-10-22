@@ -1,6 +1,6 @@
 # Atualizacao da integracao de clientes CRM
 
-Pacote 1.3.4, de 20/10/2026. Este guia consolida o contrato dos indicadores implementados e validados na versao 1.3.3, a data de cadastro do cliente e os resultados da medicao de desempenho. O pacote 1.3.4 atualiza a documentacao distribuida com o instalador; os calculos permanecem os mesmos que foram medidos.
+Pacote 1.3.5, de 22/10/2026. Inclui o campo `celular` do cadastro no retorno e na busca do CRM. Este guia tambem consolida o contrato dos indicadores implementados e validados na versao 1.3.3, a data de cadastro do cliente e os resultados da medicao de desempenho. Os calculos de historico permanecem os mesmos que foram medidos.
 
 O endpoint utilizado pelo CRM e `GET https://api.apiaob.com.br/api/clientes/crm`. A autenticacao usa o header `X-API-Key`. A resposta continua paginada, com `page`, `pageSize`, `total`, `totalPages` e `items`.
 
@@ -10,6 +10,7 @@ O endpoint utilizado pelo CRM e `GET https://api.apiaob.com.br/api/clientes/crm`
 2. Ler os novos indicadores em `items[].historico`. Os totais atuais de parcelas em aberto, como `qtdEmAbertoTerceiros` e `totalEmAbertoTerceiros`, permanecem no objeto principal do cliente.
 3. Usar o novo parametro opcional `incluirHistorico`. O padrao e `true`; com `false`, o objeto `historico` e omitido e os novos calculos nao sao executados.
 4. Tratar valores `null` como informacao indisponivel ou insuficiente. O percentual e informado na escala de 0 a 100: `25` representa 25%, nao 0,25.
+5. Ler `items[].celular` como texto ou `null`, diretamente de `Clientes.celular`. O campo e retornado com ou sem historico e participa da busca por telefone, por exemplo `?busca=17999990000`.
 
 Consulta de um cliente com historico:
 
@@ -81,6 +82,7 @@ Exemplo ficticio e parcial de uma resposta, apenas para orientar a integracao. O
       "codigo": 12345,
       "nome": "Cliente de exemplo",
       "dtCadastro": "19/10/2026",
+      "celular": "17999990000",
       "qtdEmAbertoTerceiros": 4,
       "totalEmAbertoTerceiros": 800.00,
       "historico": {
@@ -112,4 +114,4 @@ Em 19/10/2026, a consulta completa de 188.274 clientes, em duas paginas, teve me
 
 O CRM pode solicitar `incluirHistorico=false` quando precisar apenas dos dados basicos e saldos atuais. Para carregar os indicadores comportamentais, solicitar o historico e tratar o maior volume de dados por paginacao.
 
-Contrato completo em [DOCUMENTACAO_API.md](DOCUMENTACAO_API.md). Regras e amostras da medicao em [DESEMPENHO_CLIENTES_CRM.md](DESEMPENHO_CLIENTES_CRM.md). Os tres documentos acompanham o instalador 1.3.4.
+Contrato completo em [DOCUMENTACAO_API.md](DOCUMENTACAO_API.md). Regras e amostras da medicao em [DESEMPENHO_CLIENTES_CRM.md](DESEMPENHO_CLIENTES_CRM.md). Os tres documentos acompanham o instalador 1.3.5.

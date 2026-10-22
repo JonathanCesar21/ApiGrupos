@@ -187,7 +187,8 @@ public class ClientesCrmController : ControllerBase
                     DiasMaiorAtraso,
                     DtUltimaBaixa,
                     DtUltimaQuitacaoCarne,
-                    dtCadastro{destinoHistorico}
+                    dtCadastro,
+                    Celular{destinoHistorico}
                 FROM Dados
                 WHERE RowNum BETWEEN @RowStart AND @RowEnd
                 ORDER BY RowNum;
@@ -347,6 +348,7 @@ public class ClientesCrmController : ControllerBase
                     c.Idade,
                     c.Loja,
                     c.Fone,
+                    c.celular AS Celular,
                     c.Fwhats,
                     c.FoneRef1 AS FoneReferencia1,
                     c.FoneRef2 AS FoneReferencia2,
@@ -424,6 +426,7 @@ public class ClientesCrmController : ControllerBase
                     OR db.Bairro LIKE @Busca
                     OR db.NomeCidade LIKE @Busca
                     OR db.Fone LIKE @Busca
+                    OR db.Celular LIKE @Busca
                     OR db.Fwhats LIKE @Busca
                     OR db.FoneReferencia1 LIKE @Busca
                     OR db.FoneReferencia2 LIKE @Busca
@@ -659,7 +662,8 @@ public class ClientesCrmController : ControllerBase
             DiasMaiorAtraso = ReadInt32(reader, 24),
             DtUltimaBaixa = ReadDateTime(reader, 25),
             DtUltimaQuitacaoCarne = ReadDateTime(reader, 26),
-            DtCadastro = ReadString(reader, 27)
+            DtCadastro = ReadString(reader, 27),
+            Celular = ReadString(reader, 28)
         };
 
         if (incluirHistorico)

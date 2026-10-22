@@ -191,9 +191,11 @@ GET /api/clientes/12345
 
 ### `GET /api/clientes/crm`
 
-Guia das alteracoes para integrar ao CRM, com tipos, exemplo JSON e tratamento de valores nulos: [INTEGRACAO_CLIENTES_CRM.md](INTEGRACAO_CLIENTES_CRM.md). O pacote 1.3.4, de 20/10/2026, inclui esse guia e o relatorio de desempenho; os indicadores foram implementados e medidos na versao 1.3.3.
+Guia das alteracoes para integrar ao CRM, com tipos, exemplo JSON e tratamento de valores nulos: [INTEGRACAO_CLIENTES_CRM.md](INTEGRACAO_CLIENTES_CRM.md). O pacote 1.3.5, de 22/10/2026, inclui o campo `celular` no retorno e na busca do CRM e limita as transferencias entre lojas pendentes a registros desde 01/06/2026. Os indicadores de historico foram implementados e medidos na versao 1.3.3.
 
 Retorna clientes com indicadores consolidados para o CRM e campanhas. Este endpoint foi criado para evitar que o CRM precise fazer varias consultas pesadas em recebimentos, terceiros e cadastro para calcular "sem parcelas em aberto", limite disponivel e quitacao de carne.
+
+Os telefones retornados incluem `fone`, `celular`, `fwhats`, `foneReferencia1` e `foneReferencia2`. O campo `celular` vem diretamente de `Clientes.celular`, como texto ou `null`, com ou sem historico, e tambem participa do filtro `busca`.
 
 A resposta sempre usa paginacao.
 
@@ -234,6 +236,7 @@ Campos adicionais de indicadores:
 
 | Campo | Descricao |
 |---|---|
+| `celular` | Numero de celular do cadastro (`Clientes.celular`), retornado como texto ou `null`. |
 | `dtCadastro` | Data de cadastro do cliente (`Clientes.cadastro`), em texto no formato `DD/MM/AAAA`, sem horario. Exemplo: `2026-10-19 09:50:19.990` retorna `19/10/2026`. Retorna `null` quando nao ha data de cadastro. |
 | `qtdEmAbertoCrediario` | Quantidade de parcelas em aberto em `CReceber` (`Pago IS NULL`). |
 | `totalEmAbertoCrediario` | Soma de `CReceber.Valor` em aberto. |
@@ -547,9 +550,11 @@ Lista transferencias automaticas pendentes: `Automatica = '1'`, `statusimpressao
 
 ### `GET /api/transferencias-lojas-pendentes`
 
-Lista os itens de `TransferenciaControle` que ainda nao possuem um item correspondente em `Transferencia`. Quando a transferencia e efetivada, o registro de controle pode permanecer na tabela; a existencia do item em `Transferencia` e o criterio para exclui-lo do retorno.
+Lista os itens de `TransferenciaControle` com `Data` a partir de 01/06/2026 (inclusive) que ainda nao possuem um item correspondente em `Transferencia`. O limite de data e fixo, aplicado por `tc.Data >= '20260601'`, inclusive quando `notaFiscal` e informado. Quando a transferencia e efetivada, o registro de controle pode permanecer na tabela; a existencia do item em `Transferencia` e o criterio para exclui-lo do retorno.
 
 O vinculo compara `NotaFiscal`, `Origem`, `Destino`, `Codprod`, `CodCor`, `CodNumero`, `IdEmpresa` e `IdFilial`. Valores nulos de cor, numeracao, empresa e filial sao considerados iguais entre as tabelas. `Seq`, `Codigo` e `Data` nao participam do vinculo, pois podem mudar na efetivacao. `Etiqueta` e `AtualizadoMatriz` sao retornados para consulta, mas nao determinam a pendencia.
+
+A comparacao de `Destino` exige a mesma loja nos dois registros. A rota nao consulta um status especifico de recebimento ou aceite pela loja de destino; a existencia do item em `Transferencia` e a regra atual da API e, isoladamente, nao comprova esse recebimento.
 
 O filtro e aplicado por item: um produto ja efetivado nao oculta outros produtos pendentes da mesma nota. Nao possui paginacao. Possui timeout de 60 segundos, suporta cancelamento e exige `X-API-Key`.
 
