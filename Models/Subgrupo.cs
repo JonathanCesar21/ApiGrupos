@@ -7,4 +7,5 @@ public class Subgrupo
     public int? GrupoCodigo { get; set; }
     public string? CodNcm { get; set; }
     public string? Departamento { get; set; }
+    public int? DepartamentoCodigo { get; set; }
 }

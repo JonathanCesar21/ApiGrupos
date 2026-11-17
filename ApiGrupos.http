@@ -1,6 +1,64 @@
 @ApiGrupos_HostAddress = http://localhost:5122
 @ApiGrupos_ApiKey = COLOCAR_API_KEY_AQUI
 
+### Book Lojas: rotas implementadas localmente; SQL real pendente de homologacao.
+GET {{ApiGrupos_HostAddress}}/api/dashboard/recebimentos?dataInicio=2026-06-10&dataFim=2026-06-15&tipoData=baixa&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Aberto integral no periodo, sem corte de 70 dias.
+GET {{ApiGrupos_HostAddress}}/api/dashboard/titulos?dataInicio=2026-06-01&dataFim=2026-06-30&tipoData=vencimento&situacao=baixa-nula&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Fotografia integral de titulos (opcionalmente filtrar loja).
+GET {{ApiGrupos_HostAddress}}/api/dashboard/titulos?loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+GET {{ApiGrupos_HostAddress}}/api/dashboard/metas-lojas?ano=2026&mes=6&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+GET {{ApiGrupos_HostAddress}}/api/dashboard/metas-vendedores?ano=2026&mes=6&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+GET {{ApiGrupos_HostAddress}}/api/dashboard/vendedores
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Fotografia sem corte de pendencias antigas.
+GET {{ApiGrupos_HostAddress}}/api/dashboard/entradas-a-confirmar?loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Os dois ramos de transferencia, sem corte de junho/2026.
+GET {{ApiGrupos_HostAddress}}/api/dashboard/transferencias?origem=5&loja=3&somentePendentes=true
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+GET {{ApiGrupos_HostAddress}}/api/dashboard/ativacoes?dataInicio=2026-06-01&dataFim=2026-06-30&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Sem corte de cadastro 2025.
+GET {{ApiGrupos_HostAddress}}/api/dashboard/referencias
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Terceiros do PBIX por vencimento, sem Recebimento IS NULL implicito.
+GET {{ApiGrupos_HostAddress}}/api/dashboard/terceiros?dataInicio=2026-06-01&dataFim=2026-06-30&status=0&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Formulas PBIX em rotas separadas dos agregados existentes.
+GET {{ApiGrupos_HostAddress}}/api/dashboard/vendas-agregado?dataInicio=2026-06-01&dataFim=2026-06-30&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+GET {{ApiGrupos_HostAddress}}/api/dashboard/entradas-agregado?dataInicio=2026-06-01&dataFim=2026-06-30&loja=3
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+### Quatro variantes de Subgrupos preservadas, departamentoCodigo adicional.
+GET {{ApiGrupos_HostAddress}}/api/Subgrupos?page=1&pageSize=100
+X-API-Key: {{ApiGrupos_ApiKey}}
+
+###
+
 GET {{ApiGrupos_HostAddress}}/api/clientes?busca=maria&loja=10&page=1&pageSize=50
 Accept: application/json
 X-API-Key: {{ApiGrupos_ApiKey}}

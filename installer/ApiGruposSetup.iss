@@ -1,5 +1,5 @@
 #define MyAppName "ApiGrupos Controle"
-#define MyAppVersion "1.3.5"
+#define MyAppVersion "1.3.6"
 #define MyAppPublisher "ApiGrupos"
 #define MyAppURL "https://api.apiaob.com.br"
 #define MyAppExeName "ApiGrupos.Manager.exe"
@@ -37,6 +37,11 @@ Source: "..\DOCUMENTACAO_API.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\INTEGRACAO_CLIENTES_CRM.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DESEMPENHO_CLIENTES_CRM.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\INTEGRACAO_TRANSFERENCIAS_AUTOMATICAS.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\INTEGRACAO_DASHBOARD_LOVABLE.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\VALIDACAO_DASHBOARD.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\ApiGrupos.http"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\docs\openapi.json"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "..\scripts\conferir-dashboard-esquema.sql"; DestDir: "{app}\scripts"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\ApiGrupos\Painel de Controle"; Filename: "{app}\Painel\{#MyAppExeName}"

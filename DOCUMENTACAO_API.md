@@ -1,5 +1,34 @@
 # Documentacao da API ApiGrupos
 
+## Ampliacoes Book Lojas — 17/11/2026
+
+Foram implementadas 12 rotas separadas em `/api/dashboard/*`, sem alterar as regras das rotas atuais de vendas, estoque, entradas, crediarista, terceiros e produtos. Subgrupos recebeu a correcao da paginacao/contagem e o campo adicional `departamentoCodigo`, preservando os campos anteriores. O pipeline de autenticacao permanece o mesmo.
+
+**Implementacao local, ainda nao publicada. Conferencia do esquema real e integracao SQL pendentes por ausencia de conexao de homologacao, conforme autorizado pelo operador.** Sintaxe SQL validada localmente nao comprova os nomes e tipos no ERP.
+
+- [Contrato completo e mapa indicador → endpoint → campos → filtros → transformacao para a Lovable](INTEGRACAO_DASHBOARD_LOVABLE.md)
+- [OpenAPI gerado pela aplicacao, incluindo as rotas e campos novos](docs/openapi.json)
+- [Testes, limites da validacao e configuracao de APIGRUPOS_TEST_SQL_CONNECTION](VALIDACAO_DASHBOARD.md)
+
+| GET | Finalidade | Filtros principais |
+|---|---|---|
+| `/api/dashboard/recebimentos` | Todas as formas/pedidos de ContaReceber, baixas desde 2022 | Periodo obrigatorio; tipoData=baixa/vencimento; loja; lojaRecebimento |
+| `/api/dashboard/titulos` | CReceber integral, sem corte de 70 dias | Periodo opcional; tipoData=pedido/vencimento/baixa; situacao; loja |
+| `/api/dashboard/metas-lojas` | Metas mensais aditivas desde 2022 | ano; mes; loja |
+| `/api/dashboard/metas-vendedores` | Metas por codigo de vendedor desde 2022 | ano; mes; loja da meta |
+| `/api/dashboard/vendedores` | Cadastro minimo, incluindo historicos | loja; codVend |
+| `/api/dashboard/entradas-a-confirmar` | EntradaControle + ProdutoBarras por barras | loja; periodo opcional sem limite |
+| `/api/dashboard/transferencias` | UNION ALL dos dois ramos do PBIX | origem; loja; periodo opcional sem limite; tipoTransferencia; somentePendentes |
+| `/api/dashboard/ativacoes` | Primeira compra historica, antes do filtro | Periodo obrigatorio; loja |
+| `/api/dashboard/referencias` | Menor codigo elegivel por referencia, sem corte 2025 | referencia exata opcional |
+| `/api/dashboard/terceiros` | CReceberCob + CobrancaTerceiros do PBIX | Periodo obrigatorio por vencimento; loja; status |
+| `/api/dashboard/vendas-agregado` | Faturamento/custo pelas formulas do detalhe | Periodo obrigatorio; loja |
+| `/api/dashboard/entradas-agregado` | Quant*Venda e Quant*Valor apos deduplicacao global desde 2022 | Periodo obrigatorio; loja |
+
+Todas as rotas novas retornam arrays completos; nao aceitam `page`/`pageSize` (400), pois nao foram confirmadas chaves estaveis para paginar os fatos. Periodos de eventos e periodos opcionais de titulos tem limite de 120 dias inclusivos. Fotografias permitem omitir ambas as datas. DataFim e inclusiva, datas ISO sem deslocamento UTC, valores/quantidades decimais e nulos preservados. Timeout SQL de 60 s, com cancelamento. Essas regras sao especificas das rotas novas; os limites legados abaixo permanecem.
+
+A capitalizacao do dashboard usa a fonte completa nova e a lista de 19 formas documentada no guia Lovable. A rota de capitalizacao legada conserva suas 17 formas e seu comportamento anterior. Para terceiros do PBIX, preferir `/api/dashboard/terceiros`: o INNER JOIN e o campo nomeCobranca nao foram introduzidos silenciosamente na rota de cobranca existente.
+
 ## Visao geral
 
 - URL local padrao: `http://localhost:5122`
@@ -360,7 +389,7 @@ Lista os grupos de produtos, ordenados pelo nome.
 
 ### `GET /api/Subgrupos`
 
-Lista todos os subgrupos, ordenados pelo nome.
+Lista todos os subgrupos, ordenados pelo nome e codigo. Aceita array completo ou envelope paginado conforme os parametros comuns.
 
 | Campo | Tipo | Descricao |
 |---|---|---|
@@ -369,6 +398,9 @@ Lista todos os subgrupos, ordenados pelo nome.
 | `grupoCodigo` | inteiro ou nulo | Codigo do grupo ao qual pertence. |
 | `codNcm` | texto ou nulo | Codigo NCM associado ao subgrupo. |
 | `departamento` | texto ou nulo | Nome do grupo associado ao subgrupo. |
+| `departamentoCodigo` | inteiro ou nulo | Campo Subgrupos.grupo: 0 eletro, 1 moveis, 2 confeccoes. Confirmacao no esquema real pendente; nao equivale a grupoCodigo. |
+
+As consultas paginadas qualificam as colunas com alias para evitar CodGrupo ambiguo. Contagem e itens usam o mesmo JOIN com Grupos; os quatro caminhos mapeiam o campo novo. O formato e os campos anteriores foram preservados.
 
 ### `GET /api/Subgrupos/por-grupo/{grupoCodigo}`
 

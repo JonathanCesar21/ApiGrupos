@@ -20,6 +20,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.OperationFilter<DashboardOpenApi>();
     options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
         Description = "Informe a API key no header X-API-Key.",

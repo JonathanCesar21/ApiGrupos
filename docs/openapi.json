@@ -1,0 +1,3521 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "ApiGrupos",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/categoria": {
+      "get": {
+        "tags": [
+          "Categoria"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/classificacao-custo": {
+      "get": {
+        "tags": [
+          "ClassificacaoCusto"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clientes": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "busca",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clientes/{codigo}": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clientes/crm": {
+      "get": {
+        "tags": [
+          "ClientesCrm"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "busca",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codGrupo",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sexo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rendaMin",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "rendaMax",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "limiteDispMin",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "limiteDispMax",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "somenteSemParcelasEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "somenteComParcelasEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "comTerceiros",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "semTerceiros",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "quitacaoDe",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "quitacaoAte",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "incluirHistorico",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/colecao": {
+      "get": {
+        "tags": [
+          "Colecao"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/configuracao": {
+      "get": {
+        "tags": [
+          "Configuracao"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/configuracao/credenciais": {
+      "post": {
+        "tags": [
+          "Configuracao"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredenciaisRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredenciaisRequest"
+              }
+            },
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/CredenciaisRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/configuracao/status": {
+      "get": {
+        "tags": [
+          "Configuracao"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/consulta-entradas": {
+      "get": {
+        "tags": [
+          "ConsultaEntradas"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/consulta-entradas-agregado": {
+      "get": {
+        "tags": [
+          "ConsultaEntradasAgregado"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/consulta-vendas": {
+      "get": {
+        "tags": [
+          "ConsultaVendas"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/consulta-vendas-agregado": {
+      "get": {
+        "tags": [
+          "ConsultaVendasAgregado"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/consulta-vendas-transferencias-automaticas": {
+      "get": {
+        "tags": [
+          "ConsultaVendasTransferenciasAutomaticas"
+        ],
+        "parameters": [
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pedido",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendaTransferenciasAutomaticasResposta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendaTransferenciasAutomaticasResposta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendaTransferenciasAutomaticasResposta"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "description": "Gateway Timeout"
+          }
+        }
+      }
+    },
+    "/api/contasreceberterceiros/titulos": {
+      "get": {
+        "tags": [
+          "ContasReceberTerceiros"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codCobranca",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "somenteEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/contas-receber-terceiros/titulos": {
+      "get": {
+        "tags": [
+          "ContasReceberTerceiros"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codCobranca",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "somenteEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/contasreceberterceiros/clientes-resumo": {
+      "get": {
+        "tags": [
+          "ContasReceberTerceiros"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codCobranca",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "somenteEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/contas-receber-terceiros/clientes-resumo": {
+      "get": {
+        "tags": [
+          "ContasReceberTerceiros"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codCobranca",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "somenteEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ControleVolumes": {
+      "get": {
+        "tags": [
+          "ControleVolumes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/cor": {
+      "get": {
+        "tags": [
+          "Cor"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/dashboard/recebimentos": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Todas as formas e pedidos de ContaReceber, com baixas desde 2022.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Periodo obrigatorio de ate 120 dias inclusivos. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "baixa",
+                "vencimento"
+              ],
+              "type": "string",
+              "default": "baixa"
+            }
+          },
+          {
+            "name": "lojaRecebimento",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardRecebimento"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/titulos": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "CReceber completo, incluindo pagos e antigos, sem corte de 70 dias.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Periodo opcional de ate 120 dias; omitir ambas as datas para fotografia integral. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pedido",
+                "vencimento",
+                "baixa"
+              ],
+              "type": "string",
+              "default": "pedido"
+            }
+          },
+          {
+            "name": "situacao",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "todos",
+                "baixa-nula",
+                "pago-nulo",
+                "pago-preenchido"
+              ],
+              "type": "string",
+              "default": "todos"
+            }
+          },
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardTitulo"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/metas-lojas": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Metas mensais desde 2022, preservando linhas aditivas.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Filtros opcionais; sem filtros retorna a fotografia completa da fonte. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "ano",
+            "in": "query",
+            "schema": {
+              "maximum": 9999,
+              "minimum": 2022,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "mes",
+            "in": "query",
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardMetaLoja"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/metas-vendedores": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Metas desde 2022; JOIN por codigo do vendedor, sem exigir a mesma loja.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Filtros opcionais; sem filtros retorna a fotografia completa da fonte. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "ano",
+            "in": "query",
+            "schema": {
+              "maximum": 9999,
+              "minimum": 2022,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "mes",
+            "in": "query",
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardMetaVendedor"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/vendedores": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Codigo, nome e loja, incluindo vendedores historicos.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Filtros opcionais; sem filtros retorna a fotografia completa da fonte. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codVend",
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardVendedor"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/entradas-a-confirmar": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Fotografia de EntradaControle com ProdutoBarras por barras, sem corte obrigatorio.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Filtros opcionais; sem filtros retorna a fotografia completa da fonte. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardEntradaConfirmar"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/transferencias": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Transferencia desde 2024 UNION ALL controle de origem 5 desde 2026.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Filtros opcionais; sem filtros retorna a fotografia completa da fonte. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "origem",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "tipoTransferencia",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "AUTOMATICA AUTORIZADA",
+                "AUTOMATICA PENDENTE",
+                "MANUAL",
+                "MANUAL EFETIVADA",
+                "MANUAL PENDENTE"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "somentePendentes",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardTransferencia"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/ativacoes": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Primeira compra calculada sobre toda a historia antes do filtro de periodo.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Periodo obrigatorio de ate 120 dias inclusivos. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardAtivacao"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/referencias": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Menor codigo por referencia elegivel nos JOINs originais, sem corte de cadastro em 2025.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Filtros opcionais; sem filtros retorna a fotografia completa da fonte. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "referencia",
+            "in": "query",
+            "schema": {
+              "maxLength": 200,
+              "minLength": 0,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardReferencia"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/terceiros": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "CReceberCob com INNER JOIN em CobrancaTerceiros; filtro por vencimento.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Periodo obrigatorio de ate 120 dias inclusivos. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardTerceiro"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/vendas-agregado": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "SUM(ValorTotal) e SUM(quant*ValorCusto), incluindo quantidade liquida zero.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Periodo obrigatorio de ate 120 dias inclusivos. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardVendaAgregada"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/dashboard/entradas-agregado": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Entradas deduplicadas desde 2022 antes do filtro de periodo.",
+        "description": "Contrato novo. Retorna array completo, sem paginacao; page/pageSize causam HTTP 400. Datas ISO de negocio sem conversao UTC; dataFim inclusiva. Nulos preservados. Timeout SQL de 60 segundos. Periodo obrigatorio de ate 120 dias inclusivos. Nomes, tipos e multiplicidade dos JOINs no ERP ainda dependem de homologacao SQL.",
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "description": "Inicio inclusivo (YYYY-MM-DD), minimo 1753-01-01. Informar junto com dataFim.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "description": "Fim inclusivo (YYYY-MM-DD), maximo 9999-12-30. Informar junto com dataInicio.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "description": "Codigo numerico normalizado; este filtro nao substitui autorizacao por loja no backend do dashboard.",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardEntradaAgregada"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Filtro/periodo invalido ou paginacao nao suportada."
+          },
+          "401": {
+            "description": "X-API-Key ausente ou invalida."
+          },
+          "503": {
+            "description": "Banco ou chave da API nao configurados."
+          },
+          "504": {
+            "description": "Timeout SQL (60 segundos)."
+          },
+          "500": {
+            "description": "Falha de consulta; nunca equivale a conjunto vazio."
+          }
+        }
+      }
+    },
+    "/api/estoque-lojas": {
+      "get": {
+        "tags": [
+          "EstoqueLojas"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/estoque-matriz": {
+      "get": {
+        "tags": [
+          "EstoqueMatriz"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/fornecedor": {
+      "get": {
+        "tags": [
+          "Fornecedor"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Grupos": {
+      "get": {
+        "tags": [
+          "Grupos"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ncm": {
+      "get": {
+        "tags": [
+          "Ncm"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/numeracao": {
+      "get": {
+        "tags": [
+          "Numeracao"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/produto-barras": {
+      "get": {
+        "tags": [
+          "ProdutoBarras"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "referencias",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/recebimentos/crediarista/capitalizacao": {
+      "get": {
+        "tags": [
+          "RecebimentosCrediarista"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "lojaRecebimento",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/recebimentos/crediarista/titulos": {
+      "get": {
+        "tags": [
+          "RecebimentosCrediarista"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "somenteEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "somentePagos",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/recebimentos/crediarista/clientes-resumo": {
+      "get": {
+        "tags": [
+          "RecebimentosCrediarista"
+        ],
+        "parameters": [
+          {
+            "name": "dataInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "codCli",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "tipoData",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "somenteEmAberto",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "somentePagos",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/secao": {
+      "get": {
+        "tags": [
+          "Secao"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/situacao-tributaria": {
+      "get": {
+        "tags": [
+          "SituacaoTributaria"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/situacao-tributaria/rpa": {
+      "get": {
+        "tags": [
+          "SituacaoTributaria"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/situacao-tributaria/simples": {
+      "get": {
+        "tags": [
+          "SituacaoTributaria"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Subgrupos": {
+      "get": {
+        "tags": [
+          "Subgrupos"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array sem page/pageSize; envelope paginado quando solicitados. departamentoCodigo = Subgrupos.grupo (0 eletro, 1 moveis, 2 confeccoes); departamento textual preservado. Esquema ERP pendente de homologacao.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Subgrupo"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/SubgrupoPaginacaoResposta"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Subgrupos/por-grupo/{grupoCodigo}": {
+      "get": {
+        "tags": [
+          "Subgrupos"
+        ],
+        "parameters": [
+          {
+            "name": "grupoCodigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array sem page/pageSize; envelope paginado quando solicitados. departamentoCodigo = Subgrupos.grupo (0 eletro, 1 moveis, 2 confeccoes); departamento textual preservado. Esquema ERP pendente de homologacao.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Subgrupo"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/SubgrupoPaginacaoResposta"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transferencias-automaticas": {
+      "get": {
+        "tags": [
+          "TransferenciasAutomaticas"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/transferencias-lojas-pendentes": {
+      "get": {
+        "tags": [
+          "TransferenciasLojasPendentes"
+        ],
+        "parameters": [
+          {
+            "name": "notaFiscal",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/unidade": {
+      "get": {
+        "tags": [
+          "Unidade"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "HasPagination",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CredenciaisRequest": {
+        "type": "object",
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "senha": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardAtivacao": {
+        "type": "object",
+        "properties": {
+          "codCli": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dtPrimeiraCompra": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "pedido": {
+            "type": "string",
+            "nullable": true
+          },
+          "dtCadastro": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "vendedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "quant": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardEntradaAgregada": {
+        "type": "object",
+        "properties": {
+          "dataEntrada": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "referencia": {
+            "type": "string",
+            "nullable": true
+          },
+          "numero": {
+            "type": "string",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "grupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGrupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "fornecedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantidade": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "valorVendaEntradaPbix": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "custoTotalEntradaPbix": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardEntradaConfirmar": {
+        "type": "object",
+        "properties": {
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "quant": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "barras": {
+            "type": "string",
+            "nullable": true
+          },
+          "notaFiscal": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "barrasProduto": {
+            "type": "string",
+            "nullable": true
+          },
+          "grupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGrupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "fornecedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "referencia": {
+            "type": "string",
+            "nullable": true
+          },
+          "secao": {
+            "type": "string",
+            "nullable": true
+          },
+          "numero": {
+            "type": "string",
+            "nullable": true
+          },
+          "cor": {
+            "type": "string",
+            "nullable": true
+          },
+          "valorTotal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardMetaLoja": {
+        "type": "object",
+        "properties": {
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "data": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "vendas": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "avista": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "receber": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "terceiros": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "valorRM": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "receberMaisTerceiros": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardMetaVendedor": {
+        "type": "object",
+        "properties": {
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codVend": {
+            "type": "string",
+            "nullable": true
+          },
+          "vendedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "data": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "vendas": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardRecebimento": {
+        "type": "object",
+        "properties": {
+          "codFormaPagamento": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "formaPagamento": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "operador": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vlpago": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "baixa": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "lojaRecebimento": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "vencimento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pedido": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardReferencia": {
+        "type": "object",
+        "properties": {
+          "referencia": {
+            "type": "string",
+            "nullable": true
+          },
+          "custo": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "codSecao": {
+            "type": "string",
+            "nullable": true
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "codProd": {
+            "type": "string",
+            "nullable": true
+          },
+          "fornecedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "grupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGrupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codCategoria": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "categoria": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardTerceiro": {
+        "type": "object",
+        "properties": {
+          "codCli": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "vencimento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "pedido": {
+            "type": "string",
+            "nullable": true
+          },
+          "dtPedido": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "parcela": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nParcelas": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codCobranca": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nomeCobranca": {
+            "type": "string",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardTitulo": {
+        "type": "object",
+        "properties": {
+          "codCli": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pedido": {
+            "type": "string",
+            "nullable": true
+          },
+          "parcela": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nParcelas": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "dtVencimento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dtPedido": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pago": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "dtBaixa": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "codFormaPgt": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "formaPagamento": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardTransferencia": {
+        "type": "object",
+        "properties": {
+          "referencia": {
+            "type": "string",
+            "nullable": true
+          },
+          "codSecao": {
+            "type": "string",
+            "nullable": true
+          },
+          "descSecao": {
+            "type": "string",
+            "nullable": true
+          },
+          "codSubGrupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "descSubGrupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codCor": {
+            "type": "string",
+            "nullable": true
+          },
+          "descCor": {
+            "type": "string",
+            "nullable": true
+          },
+          "codNumero": {
+            "type": "string",
+            "nullable": true
+          },
+          "descNumero": {
+            "type": "string",
+            "nullable": true
+          },
+          "codFor": {
+            "type": "string",
+            "nullable": true
+          },
+          "nomeFornecedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "quant": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "notaFiscal": {
+            "type": "string",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "origem": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "statusImpressao": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "dataTransferencia": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dataAuto": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "usuarioAuto": {
+            "type": "string",
+            "nullable": true
+          },
+          "usuarioConfirma": {
+            "type": "string",
+            "nullable": true
+          },
+          "automatica": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "tipoTransferencia": {
+            "type": "string",
+            "nullable": true
+          },
+          "origemRegistro": {
+            "type": "string",
+            "nullable": true
+          },
+          "grupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "produtoCompleto": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardVendaAgregada": {
+        "type": "object",
+        "properties": {
+          "dataVenda": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "referencia": {
+            "type": "string",
+            "nullable": true
+          },
+          "numero": {
+            "type": "string",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "grupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGrupo": {
+            "type": "string",
+            "nullable": true
+          },
+          "fornecedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantidade": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "faturamentoPbix": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "custoTotalPbix": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DashboardVendedor": {
+        "type": "object",
+        "properties": {
+          "codVend": {
+            "type": "string",
+            "nullable": true
+          },
+          "vendedor": {
+            "type": "string",
+            "nullable": true
+          },
+          "loja": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
+      "Subgrupo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "grupoCodigo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codNcm": {
+            "type": "string",
+            "nullable": true
+          },
+          "departamento": {
+            "type": "string",
+            "nullable": true
+          },
+          "departamentoCodigo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubgrupoPaginacaoResposta": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Subgrupo"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VendaTransferenciaAutomaticaItem": {
+        "type": "object",
+        "properties": {
+          "referencia": {
+            "type": "string",
+            "nullable": true
+          },
+          "Cor": {
+            "type": "string",
+            "nullable": true
+          },
+          "Numero": {
+            "type": "string",
+            "nullable": true
+          },
+          "barras": {
+            "type": "string",
+            "nullable": true
+          },
+          "quant": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "TransferenciaAutomatica": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "LojaOrigemEstoque": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VendaTransferenciasAutomaticasResposta": {
+        "type": "object",
+        "properties": {
+          "loja": {
+            "type": "string",
+            "nullable": true
+          },
+          "pedido": {
+            "type": "string",
+            "nullable": true
+          },
+          "TemTransferenciaAutomatica": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "itens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VendaTransferenciaAutomaticaItem"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "description": "Informe a API key no header X-API-Key.",
+        "name": "X-API-Key",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKey": []
+    }
+  ]
+}
